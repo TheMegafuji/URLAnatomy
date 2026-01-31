@@ -12,3 +12,11 @@ export function debounce<A extends unknown[]>(
     timeout = setTimeout(() => fn(...args), ms);
   };
 }
+
+const FIRST_URL_RE = /https?:\/\/[^\s<>"{}|\\^`[\]]+/i;
+
+export function extractFirstUrl(text: string): string | null {
+  const match = text.match(FIRST_URL_RE);
+  if (!match) return null;
+  return match[0].replace(/[.,;:!?)\]]+$/, '');
+}

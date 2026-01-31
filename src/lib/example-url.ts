@@ -152,7 +152,7 @@ export function generateExampleUrl(): string {
   const host = sub ? `${sub}.${BASE_HOST}` : BASE_HOST;
   const pathSegs: string[] = [];
   const segCount = 2 + Math.floor(Math.random() * 4);
-  const pathKinds: (typeof KINDS)[number][] = ['uuid', 'timestamp', 'base64', 'jwt'];
+  const pathKinds: (typeof KINDS)[number][] = ['uuid', 'timestamp'];
   for (let i = 0; i < segCount; i++) {
     if (Math.random() < 0.5) {
       pathSegs.push(rand(PATH_LITERALS));

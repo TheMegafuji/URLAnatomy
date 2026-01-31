@@ -66,9 +66,22 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const adsenseSrc =
+    adsConfig.client &&
+    `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsConfig.client}`;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
+        {adsenseSrc && (
+          <Script
+            id="adsense-init"
+            async
+            src={adsenseSrc}
+            strategy="beforeInteractive"
+            crossOrigin="anonymous"
+          />
+        )}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -78,13 +91,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <JsonLd />
           <Suspense fallback={<div className="min-h-screen bg-background" />}>{children}</Suspense>
         </ThemeProvider>
-        <Script
-          id="adsense-init"
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsConfig.client}`}
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-        />
       </body>
     </html>
   );

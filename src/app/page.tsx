@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronRight, Github } from 'lucide-react';
+import { ChevronDown, ChevronRight, ClipboardPaste, Github } from 'lucide-react';
 import { parseUrl, analyzeParsedUrl } from '@/lib/analyzers';
-import { debounce } from '@/lib/utils';
+import { debounce, extractFirstUrl } from '@/lib/utils';
 import { generateExampleUrl } from '@/lib/example-url';
 import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
@@ -51,6 +51,16 @@ export default function Home() {
   }, [analysis?.hasJwt]);
 
   const hasResults = parsed && (analysis?.pathParams.length || analysis?.queryParams.length);
+
+  const handlePasteFromClipboard = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const url = extractFirstUrl(text);
+      setInput(url ?? text.trim());
+    } catch {
+      setInput('');
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -99,15 +109,41 @@ export default function Home() {
             <label htmlFor="url-input" className="sr-only">
               Paste URL to analyze
             </label>
-            <Textarea
-              id="url-input"
-              placeholder="Paste a URL here…"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="min-h-[120px] resize-y font-mono text-base border-2 border-input"
-              autoFocus
-            />
-            <div className="mt-2 flex justify-end">
+            <div className="relative">
+              <Textarea
+                id="url-input"
+                placeholder="Paste a URL here…"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onPaste={(e) => {
+                  const pasted = e.clipboardData?.getData('text') ?? '';
+                  const url = extractFirstUrl(pasted);
+                  if (url) {
+                    e.preventDefault();
+                    setInput(url);
+                  }
+                }}
+                className="min-h-[120px] resize-y font-mono text-base border-2 border-input pr-11"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={handlePasteFromClipboard}
+                className="absolute right-2 top-2 inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="Paste from clipboard"
+              >
+                <ClipboardPaste className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={handlePasteFromClipboard}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded hover:bg-muted/50 inline-flex items-center gap-1.5"
+              >
+                <ClipboardPaste className="h-4 w-4" />
+                Paste from clipboard
+              </button>
               <button
                 type="button"
                 onClick={() => setInput(generateExampleUrl())}
