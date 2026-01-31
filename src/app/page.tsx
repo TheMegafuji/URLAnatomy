@@ -1,0 +1,230 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, ChevronRight, Github } from 'lucide-react';
+import { parseUrl, analyzeParsedUrl } from '@/lib/analyzers';
+import { debounce } from '@/lib/utils';
+import { generateExampleUrl } from '@/lib/example-url';
+import Image from 'next/image';
+import { Textarea } from '@/components/ui/textarea';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { PrivacyNotice } from '@/components/privacy-notice';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { UrlAccordion } from '@/components/url-accordion';
+import { CopyButton } from '@/components/ui/copy-button';
+import { ParamTable } from '@/components/param-table';
+import { SidebarAd } from '@/components/ads/sidebar-ad';
+import { BottomAd } from '@/components/ads/bottom-ad';
+
+const DEBOUNCE_MS = 300;
+
+export default function Home() {
+  const [input, setInput] = useState('');
+  const [parsed, setParsed] = useState<ReturnType<typeof parseUrl>>(null);
+  const [pathExpanded, setPathExpanded] = useState(false);
+  const analysis = useMemo(() => (parsed ? analyzeParsedUrl(parsed) : null), [parsed]);
+
+  const baseUrl = parsed ? `${parsed.protocol}//${parsed.host}${parsed.pathname}` : '';
+
+  const runAnalysis = useCallback((value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setParsed(null);
+      return;
+    }
+    const result = parseUrl(trimmed);
+    setParsed(result);
+  }, []);
+
+  const debouncedRun = useMemo(() => debounce(runAnalysis, DEBOUNCE_MS), [runAnalysis]);
+
+  useEffect(() => {
+    debouncedRun(input);
+  }, [input, debouncedRun]);
+
+  useEffect(() => {
+    if (analysis?.hasJwt && typeof document !== 'undefined')
+      document.title = 'JWT Decoder & Analyzer | URL Anatomy';
+    else if (typeof document !== 'undefined')
+      document.title = 'URL Anatomy — Decode & Analyze URLs';
+  }, [analysis?.hasJwt]);
+
+  const hasResults = parsed && (analysis?.pathParams.length || analysis?.queryParams.length);
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <header className="sticky top-0 z-10 border-b-2 border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center gap-4 px-4 w-full max-w-7xl mx-auto">
+          <a href="/" className="flex items-center gap-2 font-semibold shrink-0">
+            <Image
+              src="/logo_urlanatomy.svg"
+              alt=""
+              width={28}
+              height={28}
+              className="shrink-0"
+              aria-hidden
+              unoptimized
+            />
+            <span>URL Anatomy</span>
+          </a>
+          <div className="flex-1 hidden md:flex items-center justify-center min-w-0">
+            <PrivacyNotice />
+          </div>
+          <div className="shrink-0 ml-auto md:ml-0 flex items-center gap-2">
+            <a
+              href="https://github.com/TheMegafuji/URLAnatomy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="View source on GitHub"
+            >
+              <Github className="h-5 w-5" />
+            </a>
+            <ThemeToggle />
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 lg:flex lg:gap-8">
+        <div className="min-w-0 flex-1 max-w-5xl mx-auto lg:mx-0">
+          <div className="md:hidden mb-3">
+            <PrivacyNotice />
+          </div>
+          <motion.section
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <label htmlFor="url-input" className="sr-only">
+              Paste URL to analyze
+            </label>
+            <Textarea
+              id="url-input"
+              placeholder="Paste a URL here…"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="min-h-[120px] resize-y font-mono text-base border-2 border-input"
+              autoFocus
+            />
+            <div className="mt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setInput(generateExampleUrl())}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded hover:bg-muted/50"
+              >
+                Generate example link
+              </button>
+            </div>
+          </motion.section>
+
+          {parsed && (
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <article className="rounded-lg border-2 border-border bg-card p-4">
+                <h2 className="text-sm font-medium text-muted-foreground mb-3">Base URL</h2>
+                <dl className="grid gap-3 font-mono text-sm sm:grid-cols-2 gap-x-8 mb-4">
+                  <div>
+                    <dt className="text-muted-foreground">Protocol</dt>
+                    <dd className="mt-0.5">{parsed.protocol}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Host</dt>
+                    <dd className="mt-0.5 break-all">{parsed.host}</dd>
+                  </div>
+                </dl>
+                <div>
+                  <span className="text-sm font-medium text-muted-foreground block mb-3">
+                    Link without query params
+                  </span>
+                  <div className="flex items-center gap-2 rounded-lg border-2 border-border bg-muted/30 px-3 py-2 font-mono text-sm break-all">
+                    <span className="min-w-0 flex-1">{baseUrl}</span>
+                    <CopyButton text={baseUrl} aria-label="Copy link without query params" />
+                  </div>
+                </div>
+              </article>
+
+              <UrlAccordion original={parsed.raw} decoded={parsed.decoded} />
+
+              {parsed.pathSegments.length > 0 && (
+                <article className="rounded-lg border-2 border-border bg-card overflow-visible">
+                  <button
+                    type="button"
+                    onClick={() => setPathExpanded((e) => !e)}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors rounded-t-lg"
+                    aria-expanded={pathExpanded}
+                  >
+                    {pathExpanded ? (
+                      <ChevronDown className="h-4 w-4 shrink-0" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 shrink-0" />
+                    )}
+                    <span>Path</span>
+                    <span className="text-xs">
+                      ({parsed.pathSegments.length} segment
+                      {parsed.pathSegments.length !== 1 ? 's' : ''})
+                    </span>
+                  </button>
+                  <AnimatePresence>
+                    {pathExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden border-t-2 border-border"
+                      >
+                        <div className="p-4 pt-3">
+                          <div className="mb-3">
+                            <Breadcrumbs segments={parsed.pathSegments} />
+                          </div>
+                          <div className="rounded-lg border-2 border-border overflow-visible">
+                            <ParamTable
+                              params={analysis?.pathParams ?? []}
+                              emptyMessage="No path segments"
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </article>
+              )}
+
+              {parsed.queryParams.length > 0 && (
+                <article className="rounded-lg border-2 border-border bg-card p-4">
+                  <h2 className="text-sm font-medium text-muted-foreground mb-3">
+                    Query parameters
+                  </h2>
+                  <div className="rounded-lg border-2 border-border overflow-hidden">
+                    <ParamTable
+                      params={analysis?.queryParams ?? []}
+                      emptyMessage="No query params"
+                    />
+                  </div>
+                </article>
+              )}
+
+              {hasResults && (
+                <section className="pt-4">
+                  <BottomAd />
+                </section>
+              )}
+            </motion.section>
+          )}
+        </div>
+        <SidebarAd />
+      </main>
+
+      <footer className="border-t border-border bg-muted/30 py-6 px-4">
+        <div className="max-w-7xl mx-auto text-center text-sm text-muted-foreground">
+          <p className="max-w-2xl mx-auto">
+            <strong className="text-foreground">Privacy.</strong> URL Anatomy processes everything
+            in your browser. No URL, token, JWT or pasted data is sent to our servers or third
+            parties. We do not store, log or analyze the content you enter. The tool works offline
+            after the page has loaded.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
