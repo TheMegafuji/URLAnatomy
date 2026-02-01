@@ -72,7 +72,7 @@ export default function Home() {
               alt=""
               width={28}
               height={28}
-              className="shrink-0"
+              className="shrink-0 dark:invert"
               aria-hidden
               unoptimized
             />
