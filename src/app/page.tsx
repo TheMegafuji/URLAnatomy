@@ -17,6 +17,7 @@ import { ParamTable } from '@/components/param-table';
 import { SidebarAd } from '@/components/ads/sidebar-ad';
 import { BottomAd } from '@/components/ads/bottom-ad';
 import { Footer } from '@/components/footer';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 const DEBOUNCE_MS = 300;
 
@@ -27,6 +28,34 @@ export default function Home() {
   const analysis = useMemo(() => (parsed ? analyzeParsedUrl(parsed) : null), [parsed]);
 
   const baseUrl = parsed ? `${parsed.protocol}//${parsed.host}${parsed.pathname}` : '';
+
+  const cleanUrl = useMemo(() => {
+    if (!parsed || !analysis?.queryParams.length) return '';
+    const nonMarketing = parsed.queryParams.filter(
+      (_, i) => analysis.queryParams[i]?.kind !== 'marketing'
+    );
+    if (nonMarketing.length === 0) return baseUrl;
+    const search = new URLSearchParams(nonMarketing.map((q) => [q.key, q.value])).toString();
+    return `${baseUrl}?${search}`;
+  }, [parsed, analysis?.queryParams, baseUrl]);
+
+  const hasMarketingParams = Boolean(
+    analysis?.queryParams.some((p) => p.kind === 'marketing')
+  );
+
+  const { copy } = useCopyToClipboard();
+  const [showCleanCopiedToast, setShowCleanCopiedToast] = useState(false);
+  const handleCopyCleanUrl = useCallback(() => {
+    if (!cleanUrl) return;
+    copy(cleanUrl);
+    setShowCleanCopiedToast(true);
+  }, [cleanUrl, copy]);
+
+  useEffect(() => {
+    if (!showCleanCopiedToast) return undefined;
+    const t = setTimeout(() => setShowCleanCopiedToast(false), 2500);
+    return () => clearTimeout(t);
+  }, [showCleanCopiedToast]);
 
   const runAnalysis = useCallback((value: string) => {
     const trimmed = value.trim();
@@ -178,6 +207,22 @@ export default function Home() {
                     <CopyButton text={baseUrl} aria-label="Copy link without query params" />
                   </div>
                 </div>
+                {hasMarketingParams && (
+                  <div className="mt-4">
+                    <span className="text-sm font-medium text-muted-foreground block mb-3">
+                      Clean URL (trackers removed)
+                    </span>
+                    <div className="flex items-center gap-2 rounded-lg border-2 border-border bg-muted/30 px-3 py-2 font-mono text-sm break-all">
+                      <span className="min-w-0 flex-1">{cleanUrl}</span>
+                      <CopyButton text={cleanUrl} aria-label="Copy clean URL" />
+                    </div>
+                    {showCleanCopiedToast && (
+                      <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-400">
+                        Clean URL copied to clipboard (trackers removed).
+                      </p>
+                    )}
+                  </div>
+                )}
               </article>
 
               <UrlAccordion original={parsed.raw} decoded={parsed.decoded} />

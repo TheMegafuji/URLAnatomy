@@ -11,6 +11,9 @@ import { ColorView } from './color-view';
 import { GeoView } from './geo-view';
 import { XssView } from './xss-view';
 import { SqliView } from './sqli-view';
+import { CredentialView } from './credential-view';
+import { DbConnectionView } from './db-connection-view';
+import { CryptoView } from './crypto-view';
 import { UserAgentView } from './user-agent-view';
 import { MarketingView } from './marketing-view';
 import { NetworkView } from './network-view';
@@ -29,6 +32,9 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
   geo: (p) => <GeoView meta={p.meta} />,
   xss: (p) => <XssView meta={p.meta} />,
   sqli: (p) => <SqliView meta={p.meta} />,
+  credential: (p) => <CredentialView meta={p.meta} />,
+  db_connection: (p) => <DbConnectionView meta={p.meta} />,
+  crypto: (p) => <CryptoView meta={p.meta} />,
   'user-agent': (p) => <UserAgentView meta={p.meta} />,
   marketing: (p) => <MarketingView meta={p.meta} />,
   network: (p) => <NetworkView meta={p.meta} />,

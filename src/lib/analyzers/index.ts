@@ -8,6 +8,9 @@ import { detectColor } from './color';
 import { detectGeo } from './geo';
 import { detectXss } from './xss';
 import { detectSqli } from './sqli';
+import { detectCredential } from './credential';
+import { detectDbConnection } from './db-connection';
+import { detectCrypto } from './crypto';
 import { detectUserAgent } from './user-agent';
 import { detectMarketing } from './marketing';
 import { detectNetwork } from './network';
@@ -24,6 +27,9 @@ export type ParamKind =
   | 'geo'
   | 'xss'
   | 'sqli'
+  | 'credential'
+  | 'db_connection'
+  | 'crypto'
   | 'user-agent'
   | 'marketing'
   | 'network'
@@ -51,6 +57,12 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (xss) return { key, value, decoded, kind: 'xss', meta: xss };
   const sqli = detectSqli(decoded);
   if (sqli) return { key, value, decoded, kind: 'sqli', meta: sqli };
+  const credential = detectCredential(decoded);
+  if (credential) return { key, value, decoded, kind: 'credential', meta: credential };
+  const dbConnection = detectDbConnection(decoded);
+  if (dbConnection) return { key, value, decoded, kind: 'db_connection', meta: dbConnection };
+  const crypto = detectCrypto(decoded);
+  if (crypto) return { key, value, decoded, kind: 'crypto', meta: crypto };
   const jwt = detectJwt(decoded);
   if (jwt) return { key, value, decoded, kind: 'jwt', meta: jwt };
   const json = detectJson(decoded);
@@ -116,3 +128,9 @@ export { detectMarketing } from './marketing';
 export type { MarketingResult } from './marketing';
 export { detectNetwork } from './network';
 export type { NetworkResult } from './network';
+export { detectCredential } from './credential';
+export type { CredentialResult } from './credential';
+export { detectDbConnection } from './db-connection';
+export type { DbConnectionResult } from './db-connection';
+export { detectCrypto } from './crypto';
+export type { CryptoResult } from './crypto';

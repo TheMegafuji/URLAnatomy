@@ -7,6 +7,8 @@
 ## Features
 
 - **URL parsing** — Protocol, host, path, and query parameters with dual view (encoded vs decoded)
+- **Security** — XSS and SQL injection pattern detection; credential, API key, and DB connection string detection (values masked by default)
+- **Marketing / tracking** — UTM, gclid, fbclid, ttclid, ref, affiliate; **Copy Clean URL** to strip trackers and copy a marketing-free link
 - **JWT** — Decode header and payload, validate expiration, formatted output
 - **Timestamps** — Seconds, milliseconds, ISO8601; relative and absolute dates
 - **UUID** — Validation and version detection (v4, v7, etc.)
@@ -15,7 +17,9 @@
 - **Hash** — Heuristic detection (e.g. MD5, SHA256 by length)
 - **Color** — Hex/RGB detection with visual swatch
 - **Geo** — Lat/lng detection with map or location context
-- **XSS** — Flag potential malicious payloads (e.g. `<script>`)
+- **Network** — IPv4/IPv6 and CIDR detection; private vs public scope
+- **Crypto** — Ethereum, Bitcoin (legacy/SegWit/Bech32), Solana wallet addresses with explorer links
+- **User-Agent** — Detection and parsed Browser/OS from UA strings
 - **URI decoded** — Human-readable decoding of encoded characters
 
 ---

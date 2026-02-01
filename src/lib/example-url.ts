@@ -10,6 +10,7 @@ function randomSubdomain(): string | undefined {
   for (let i = 0; i < len; i++) s += String.fromCharCode(97 + Math.floor(Math.random() * 26));
   return s;
 }
+
 const KINDS = [
   'jwt',
   'uuid',
@@ -20,6 +21,13 @@ const KINDS = [
   'base64',
   'json',
   'xss',
+  'sqli',
+  'user-agent',
+  'marketing',
+  'network',
+  'crypto',
+  'credential',
+  'db_connection',
   'uri',
 ] as const;
 
@@ -38,6 +46,14 @@ function hex(len: number): string {
     out.push((bytes[i]! >> 4).toString(16), (bytes[i]! & 15).toString(16));
   }
   return out.join('');
+}
+
+function alnum(len: number): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let s = '';
+  const arr = crypto.getRandomValues(new Uint8Array(len));
+  for (let i = 0; i < len; i++) s += chars[arr[i]! % chars.length];
+  return s;
 }
 
 function genJwt(): string {
@@ -105,6 +121,55 @@ function genXss(): string {
   return rand(samples);
 }
 
+function genSqli(): string {
+  const samples = ["1 OR 1=1", "'; DROP TABLE users--", "1 UNION SELECT null--"];
+  return rand(samples);
+}
+
+function genUserAgent(): string {
+  const uas = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+    'Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0',
+  ];
+  return rand(uas);
+}
+
+function genMarketing(): string {
+  const utmValues = ['google', 'cpc', 'email', 'summer_sale', 'banner', 'organic'];
+  return rand(utmValues);
+}
+
+function randInt(min: number, max: number): number {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function genNetwork(): string {
+  const priv = [
+    `10.${randInt(0, 255)}.${randInt(0, 255)}.${randInt(0, 255)}`,
+    '192.168.1.1',
+    '172.16.0.1',
+  ];
+  const pub = [`203.0.113.${Math.floor(Math.random() * 256)}`];
+  return rand(Math.random() < 0.6 ? priv : pub);
+}
+
+function genCrypto(): string {
+  return '0x' + hex(40);
+}
+
+function genCredential(): string {
+  return 'sk_test_' + alnum(24);
+}
+
+function genDbConnection(): string {
+  return rand([
+    'postgres://localhost:5432/demo',
+    'mysql://user:secret@localhost:3306/app',
+    'mongodb://localhost:27017/mydb',
+  ]);
+}
+
 function genUri(): string {
   const sub = randomSubdomain();
   const host = sub ? `${sub}.${BASE_HOST}` : BASE_HOST;
@@ -121,6 +186,13 @@ const GEN: Record<(typeof KINDS)[number], () => string> = {
   base64: genBase64,
   json: genJson,
   xss: genXss,
+  sqli: genSqli,
+  'user-agent': genUserAgent,
+  marketing: genMarketing,
+  network: genNetwork,
+  crypto: genCrypto,
+  credential: genCredential,
+  db_connection: genDbConnection,
   uri: genUri,
 };
 
@@ -134,6 +206,23 @@ const PARAM_NAMES: Record<(typeof KINDS)[number], string[]> = {
   base64: ['data', 'state', 'payload', 'cursor'],
   json: ['config', 'metadata', 'query', 'filters'],
   xss: ['q', 'search', 'redirect', 'returnUrl'],
+  sqli: ['id', 'q', 'filter', 'order'],
+  'user-agent': ['User-Agent', 'ua', 'user_agent'],
+  marketing: [
+    'utm_source',
+    'utm_medium',
+    'utm_campaign',
+    'utm_term',
+    'utm_content',
+    'gclid',
+    'fbclid',
+    'ref',
+    'referral',
+  ],
+  network: ['ip', 'host', 'server', 'forwarded_for'],
+  crypto: ['wallet', 'address', 'eth_address'],
+  credential: ['api_key', 'token', 'secret'],
+  db_connection: ['database_url', 'db', 'connection_string'],
   uri: ['callback', 'redirect_uri', 'next', 'continue'],
 };
 
