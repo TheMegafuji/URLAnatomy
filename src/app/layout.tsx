@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import Script from 'next/script';
 import { Suspense } from 'react';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -72,16 +71,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
+      <head>
         {adsenseSrc && (
-          <Script
-            id="adsense-init"
+          <script
             async
             src={adsenseSrc}
-            strategy="beforeInteractive"
             crossOrigin="anonymous"
           />
         )}
+      </head>
+      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
