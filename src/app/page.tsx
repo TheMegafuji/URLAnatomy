@@ -16,6 +16,7 @@ import { CopyButton } from '@/components/ui/copy-button';
 import { ParamTable } from '@/components/param-table';
 import { SidebarAd } from '@/components/ads/sidebar-ad';
 import { BottomAd } from '@/components/ads/bottom-ad';
+import { Footer } from '@/components/footer';
 
 const DEBOUNCE_MS = 300;
 
@@ -251,16 +252,7 @@ export default function Home() {
         <SidebarAd />
       </main>
 
-      <footer className="border-t border-border bg-muted/30 py-6 px-4">
-        <div className="max-w-7xl mx-auto text-center text-sm text-muted-foreground">
-          <p className="max-w-2xl mx-auto">
-            <strong className="text-foreground">Privacy.</strong> URL Anatomy processes everything
-            in your browser. No URL, token, JWT or pasted data is sent to our servers or third
-            parties. We do not store, log or analyze the content you enter. The tool works offline
-            after the page has loaded.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
