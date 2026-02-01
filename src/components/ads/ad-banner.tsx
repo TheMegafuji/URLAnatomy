@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { adsConfig } from '@/lib/ads-config';
 
 type AdBannerVariant = 'horizontal' | 'vertical';
@@ -24,11 +24,14 @@ export default function AdBanner({
   dataAdSlot: string;
   variant?: AdBannerVariant;
 }) {
+  const [mounted, setMounted] = useState(false);
   const { client } = adsConfig;
   const styles = variantStyles[variant];
 
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
-    if (!dataAdSlot) return;
+    if (!mounted || !dataAdSlot) return;
     try {
       (window as unknown as { adsbygoogle?: unknown[] }).adsbygoogle =
         (window as unknown as { adsbygoogle?: unknown[] }).adsbygoogle || [];
@@ -36,7 +39,7 @@ export default function AdBanner({
     } catch (err) {
       console.error('AdSense error', err);
     }
-  }, [dataAdSlot]);
+  }, [mounted, dataAdSlot]);
 
   return (
     <div
@@ -50,7 +53,7 @@ export default function AdBanner({
         Advertisement
       </span>
 
-      {dataAdSlot ? (
+      {mounted && dataAdSlot ? (
         <ins
           className="adsbygoogle"
           style={styles.insStyle}

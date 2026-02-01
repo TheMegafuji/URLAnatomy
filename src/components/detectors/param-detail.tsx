@@ -10,6 +10,10 @@ import { HashView } from './hash-view';
 import { ColorView } from './color-view';
 import { GeoView } from './geo-view';
 import { XssView } from './xss-view';
+import { SqliView } from './sqli-view';
+import { UserAgentView } from './user-agent-view';
+import { MarketingView } from './marketing-view';
+import { NetworkView } from './network-view';
 import { UriView } from './uri-view';
 
 type ViewRenderer = (param: AnalyzedParam) => React.ReactNode;
@@ -24,6 +28,10 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
   color: (p) => <ColorView meta={p.meta} />,
   geo: (p) => <GeoView meta={p.meta} />,
   xss: (p) => <XssView meta={p.meta} />,
+  sqli: (p) => <SqliView meta={p.meta} />,
+  'user-agent': (p) => <UserAgentView meta={p.meta} />,
+  marketing: (p) => <MarketingView meta={p.meta} />,
+  network: (p) => <NetworkView meta={p.meta} />,
   uri: (p) => <UriView decoded={p.decoded} />,
 };
 

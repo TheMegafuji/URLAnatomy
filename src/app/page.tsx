@@ -103,7 +103,7 @@ export default function Home() {
             <PrivacyNotice />
           </div>
           <motion.section
-            initial={{ opacity: 0, y: 8 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
@@ -156,7 +156,7 @@ export default function Home() {
           </motion.section>
 
           {parsed && (
-            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            <motion.section initial={false} animate={{ opacity: 1 }} className="space-y-6">
               <article className="rounded-lg border-2 border-border bg-card p-4">
                 <h2 className="text-sm font-medium text-muted-foreground mb-3">Base URL</h2>
                 <dl className="grid gap-3 font-mono text-sm sm:grid-cols-2 gap-x-8 mb-4">

@@ -15,6 +15,10 @@ const variants: Record<BadgeVariant, string> = {
   color: 'border-transparent bg-pink-500/20 text-pink-400',
   geo: 'border-transparent bg-teal-500/20 text-teal-400',
   xss: 'border-transparent bg-red-500/20 text-red-400',
+  sqli: 'border-transparent bg-red-500/20 text-red-400',
+  'user-agent': 'border-transparent bg-slate-500/20 text-slate-400',
+  marketing: 'border-transparent bg-amber-500/20 text-amber-400',
+  network: 'border-transparent bg-cyan-500/20 text-cyan-400',
   uri: 'border-transparent bg-muted text-muted-foreground',
 };
 

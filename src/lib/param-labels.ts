@@ -10,5 +10,9 @@ export const BADGE_LABEL: Record<AnalyzedParam['kind'], string> = {
   color: 'Color',
   geo: 'Geo',
   xss: 'XSS Risk',
+  sqli: 'SQL Injection',
+  'user-agent': 'User Agent',
+  marketing: 'Marketing',
+  network: 'Network',
   uri: 'URI',
 };
