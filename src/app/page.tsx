@@ -17,7 +17,7 @@ import { ParamTable } from '@/components/param-table';
 import { SidebarAd } from '@/components/ads/sidebar-ad';
 import { BottomAd } from '@/components/ads/bottom-ad';
 import { Footer } from '@/components/footer';
-import { SeoContent } from '@/components/seo-content';
+import Link from 'next/link';
 
 const DEBOUNCE_MS = 300;
 
@@ -114,14 +114,30 @@ export default function Home() {
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 lg:flex lg:gap-8">
         <div className="min-w-0 flex-1 max-w-5xl mx-auto lg:mx-0">
-          <div className="md:hidden mb-3">
-            <PrivacyNotice />
-          </div>
           <motion.section
             initial={false}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
+            <p className="md:hidden text-sm text-muted-foreground mb-3 max-w-xl">
+              Paste a URL — we decode JWTs, timestamps & more in your browser.{' '}
+              <Link
+                href="/learn"
+                className="text-foreground/80 hover:text-foreground underline underline-offset-2"
+              >
+                Learn more
+              </Link>
+            </p>
+            <p className="hidden md:block text-sm text-muted-foreground mb-3 max-w-xl">
+              Paste a URL and watch the magic — we decode JWTs, timestamps, UUIDs, and params
+              instantly. All in your browser, nothing leaves your device.{' '}
+              <Link
+                href="/learn"
+                className="text-foreground/80 hover:text-foreground underline underline-offset-2"
+              >
+                Learn more
+              </Link>
+            </p>
             <label htmlFor="url-input" className="sr-only">
               Paste URL to analyze
             </label>
@@ -278,7 +294,6 @@ export default function Home() {
         <SidebarAd />
       </main>
 
-      <SeoContent />
       <Footer />
     </div>
   );

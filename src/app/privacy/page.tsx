@@ -19,11 +19,13 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="border-b border-border bg-muted/30 px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-foreground font-semibold hover:underline underline-offset-4">
-          URL Anatomy
-        </Link>
-        <ThemeToggle />
+      <header className="sticky top-0 z-10 border-b-2 border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center gap-4 px-4 w-full max-w-7xl mx-auto justify-between">
+          <Link href="/" className="flex items-center gap-2 font-semibold shrink-0 text-foreground hover:underline underline-offset-4">
+            ← URL Anatomy
+          </Link>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-10">
