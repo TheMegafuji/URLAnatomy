@@ -11,6 +11,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "dependencies": {
+    "@next/third-parties": "^16.1.6",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.11.0",
     "jwt-decode": "^4.0.0",

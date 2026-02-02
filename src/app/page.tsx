@@ -17,6 +17,7 @@ import { ParamTable } from '@/components/param-table';
 import { SidebarAd } from '@/components/ads/sidebar-ad';
 import { BottomAd } from '@/components/ads/bottom-ad';
 import { Footer } from '@/components/footer';
+import { SeoContent } from '@/components/seo-content';
 
 const DEBOUNCE_MS = 300;
 
@@ -277,6 +278,7 @@ export default function Home() {
         <SidebarAd />
       </main>
 
+      <SeoContent />
       <Footer />
     </div>
   );

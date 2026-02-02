@@ -52,6 +52,7 @@ Copy `.env.example` to `.env` and set:
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_SITE_URL` | Canonical site URL (e.g. for SEO/OG) |
+| `NEXT_PUBLIC_GA_ID` | Google Analytics 4 Measurement ID, e.g. `G-XXXXXX` (optional) |
 | `NEXT_PUBLIC_ADSENSE_CLIENT` | Google AdSense client ID (optional) |
 | `NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM` | Ad slot ID for bottom block (optional) |
 | `NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR` | Ad slot ID for sidebar (optional) |

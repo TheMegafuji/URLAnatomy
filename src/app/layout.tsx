@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { Suspense } from 'react';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -10,29 +11,30 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-geist-sans' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://urlanatomy.com';
+const gaId = process.env.NEXT_PUBLIC_GA_ID ?? '';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'URL Decode, JWT Debugger & Timestamp Converter Online',
+    default: 'URL Anatomy | Advanced URL Decoder & Security Inspector',
     template: '%s | URL Anatomy',
   },
   description:
-    'Decode URLs, debug JWTs, convert timestamps — all in your browser. URL Anatomy: JWT decoder, Base64, JSON, UUID. No server, 100% private.',
+    'Privacy-first URL parser. Decode JWT, timestamps, UUIDs, and detect sensitive data (API Keys, Crypto Wallets) instantly in your browser.',
   keywords: [
-    'URL decode',
-    'JWT debugger',
-    'timestamp converter',
-    'URL decoder',
-    'JWT decoder',
-    'query parser',
-    'Base64',
-    'privacy',
+    'URL Decoder',
+    'JWT Decoder',
+    'Timestamp Converter',
+    'Developer Tools',
+    'Privacy First',
+    'JWT Debugger',
+    'Clean URL',
+    'Security Audit',
   ],
   openGraph: {
     title: 'URL Anatomy — Decode, JWT Debugger, Timestamp Converter',
     description:
-      'Decode URLs, debug JWTs, convert timestamps — all in your browser. 100% private, nothing sent to servers.',
+      'The Swiss Army Knife for developers. Decode params, check security, and clean URLs.',
     url: siteUrl,
     siteName: 'URL Anatomy',
     images: [
@@ -48,8 +50,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'URL Anatomy — Decode, JWT Debugger, Timestamp Converter',
-    description: 'Decode URLs, debug JWTs, convert timestamps. 100% in your browser.',
+    title: 'URL Anatomy',
+    description: 'Advanced URL analysis tool for developers.',
     images: ['/URLAnatomy_Open_Graph_Image.png'],
   },
   icons: {
@@ -90,6 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <JsonLd />
           <Suspense fallback={<div className="min-h-screen bg-background" />}>{children}</Suspense>
         </ThemeProvider>
+        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>
   );
