@@ -2,14 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronRight, ClipboardPaste, Github } from 'lucide-react';
+import { ChevronDown, ChevronRight, ClipboardPaste, Dices, Github, Shield } from 'lucide-react';
 import { parseUrl, analyzeParsedUrl } from '@/lib/analyzers';
 import { debounce, extractFirstUrl } from '@/lib/utils';
 import { generateExampleUrl } from '@/lib/example-url';
 import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { PrivacyNotice } from '@/components/privacy-notice';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { UrlAccordion } from '@/components/url-accordion';
 import { CopyButton } from '@/components/ui/copy-button';
@@ -86,18 +85,15 @@ export default function Home() {
             <Image
               src="/logo_urlanatomy.svg"
               alt=""
-              width={28}
-              height={28}
+              width={38}
+              height={38}
               className="shrink-0 dark:invert"
               aria-hidden
               unoptimized
             />
             <span>URL Anatomy</span>
           </a>
-          <div className="flex-1 hidden md:flex items-center justify-center min-w-0">
-            <PrivacyNotice />
-          </div>
-          <div className="shrink-0 ml-auto md:ml-0 flex items-center gap-2">
+          <div className="shrink-0 ml-auto flex items-center gap-2">
             <a
               href="https://github.com/TheMegafuji/URLAnatomy"
               target="_blank"
@@ -119,6 +115,12 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
+            <div className="inline-flex rounded-md border border-emerald-500/20 bg-emerald-500/10 backdrop-blur-md px-3 py-2 mb-4">
+              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-2">
+                <Shield className="h-4 w-4 shrink-0 text-emerald-500" aria-hidden />
+                Everything runs in your browser. No data is sent to any server.
+              </p>
+            </div>
             <p className="md:hidden text-sm text-muted-foreground mb-3 max-w-xl">
               Paste a URL — we decode JWTs, timestamps & more in your browser.{' '}
               <Link
@@ -155,7 +157,7 @@ export default function Home() {
                     setInput(url);
                   }
                 }}
-                className="min-h-[120px] resize-y font-mono text-base border-2 border-input pr-11"
+                className="min-h-[180px] resize-y font-mono text-base border-2 border-input pr-11"
                 autoFocus
               />
               <button
@@ -179,8 +181,9 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setInput(generateExampleUrl())}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded hover:bg-muted/50"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded hover:bg-muted/50 inline-flex items-center gap-1.5"
               >
+                <Dices className="h-4 w-4" />
                 Generate example link
               </button>
             </div>

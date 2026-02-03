@@ -16,11 +16,11 @@ export function CopyButton({ text, 'aria-label': ariaLabel }: CopyButtonProps) {
       type="button"
       variant="ghost"
       size="sm"
-      className="h-8 w-8 shrink-0 p-0"
+      className="h-10 w-10 shrink-0 p-0"
       onClick={() => copy(text)}
       aria-label={ariaLabel}
     >
-      {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+      {copied ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5" />}
     </Button>
   );
 }
