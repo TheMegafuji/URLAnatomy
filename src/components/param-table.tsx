@@ -54,7 +54,7 @@ function ParamTableRow({
       transition={{ delay: index * 0.02 }}
       className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
     >
-      <td className="py-2.5 pr-3 align-top">
+      <td className="py-2.5 pl-3 pr-3 align-top">
         <code className="text-xs text-muted-foreground">{param.key || '—'}</code>
       </td>
       <td className="py-2.5 pr-3 align-top">
@@ -101,7 +101,7 @@ export function ParamTable({
       <table className="w-full table-auto">
         <thead>
           <tr className="border-b-2 border-border text-muted-foreground">
-            <th className="py-2 pr-3 text-left font-medium text-xs">Param</th>
+            <th className="py-2 pl-3 pr-3 text-left font-medium text-xs">Param</th>
             <th className="py-2 pr-3 text-left font-medium text-xs">Type</th>
             <th className="py-2 pr-3 text-left font-medium text-xs">Value</th>
           </tr>
