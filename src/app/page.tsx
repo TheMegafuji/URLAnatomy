@@ -16,6 +16,7 @@ import { ParamTable } from '@/components/param-table';
 import { SidebarAd } from '@/components/ads/sidebar-ad';
 import { BottomAd } from '@/components/ads/bottom-ad';
 import { Footer } from '@/components/footer';
+import { SeoAccordion } from '@/components/seo/SeoAccordion';
 import Link from 'next/link';
 
 const DEBOUNCE_MS = 300;
@@ -293,6 +294,8 @@ export default function Home() {
               )}
             </motion.section>
           )}
+
+          <SeoAccordion />
         </div>
         <SidebarAd />
       </main>
