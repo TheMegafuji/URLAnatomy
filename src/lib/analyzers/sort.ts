@@ -14,6 +14,15 @@ const DIRECTION_KEYS: Record<string, boolean> = {
 };
 const ASC_VALUES = new Set(['asc', 'ascending', '1', 'up']);
 const DESC_VALUES = new Set(['desc', 'descending', '-1', 'down']);
+const JWT_LIKE = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+function looksLikeStructuredValue(v: string): boolean {
+  const s = v.trim();
+  if (s.length < 20) return false;
+  if (JWT_LIKE.test(s)) return true;
+  if (s.startsWith('{') && s.includes('}')) return true;
+  if (s.startsWith('[') && s.includes(']')) return true;
+  return false;
+}
 
 export interface SortResult {
   type: 'sort';
@@ -43,7 +52,8 @@ export function detectSort(key: string, value: string): SortResult | null {
         summary: `Order: ${direction === 'asc' ? 'ascending' : 'descending'}`,
       };
     }
-    if (!isDirectionKey || !ASC_VALUES.has(vLower) && !DESC_VALUES.has(vLower)) {
+    if (!isDirectionKey || (!ASC_VALUES.has(vLower) && !DESC_VALUES.has(vLower))) {
+      if (looksLikeStructuredValue(v)) return null;
       return {
         type: 'sort',
         role: 'field',

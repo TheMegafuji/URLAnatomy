@@ -9,6 +9,18 @@ const PAGINATION_KEYS: Record<string, 'page' | 'limit' | 'offset' | 'per_page' |
   next_cursor: 'cursor',
 };
 
+const JWT_LIKE = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+const BASE64_LIKE = /^[A-Za-z0-9+/]+=*$/i;
+function looksLikeStructuredValue(v: string): boolean {
+  const s = v.trim();
+  if (s.length < 20) return false;
+  if (JWT_LIKE.test(s)) return true;
+  if (s.startsWith('{') && s.includes('}')) return true;
+  if (s.startsWith('[') && s.includes(']')) return true;
+  if (BASE64_LIKE.test(s) && s.length > 40) return true;
+  return false;
+}
+
 export interface PaginationResult {
   type: 'pagination';
   kind: 'page' | 'limit' | 'offset' | 'per_page' | 'cursor';
@@ -31,6 +43,7 @@ export function detectPagination(key: string, value: string): PaginationResult |
   if (!kind) return null;
   const v = value.trim();
   if (kind === 'cursor') {
+    if (looksLikeStructuredValue(v)) return null;
     return {
       type: 'pagination',
       kind: 'cursor',
