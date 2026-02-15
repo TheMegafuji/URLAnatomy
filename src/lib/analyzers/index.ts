@@ -13,7 +13,13 @@ import { detectDbConnection } from './db-connection';
 import { detectCrypto } from './crypto';
 import { detectUserAgent } from './user-agent';
 import { detectMarketing } from './marketing';
+import { detectPagination } from './pagination';
+import { detectSort } from './sort';
 import { detectNetwork } from './network';
+import { detectEmail } from './email';
+import { detectPhone } from './phone';
+import { detectLocale } from './locale';
+import { detectSemver } from './semver';
 import type { ParsedUrl } from './url-parse';
 
 export type ParamKind =
@@ -32,7 +38,13 @@ export type ParamKind =
   | 'crypto'
   | 'user-agent'
   | 'marketing'
+  | 'pagination'
+  | 'sort'
   | 'network'
+  | 'email'
+  | 'phone'
+  | 'locale'
+  | 'semver'
   | 'uri';
 
 export interface AnalyzedParam {
@@ -73,8 +85,20 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (uuid) return { key, value, decoded, kind: 'uuid', meta: uuid };
   const marketing = detectMarketing(key);
   if (marketing) return { key, value, decoded, kind: 'marketing', meta: marketing };
+  const pagination = detectPagination(key, decoded);
+  if (pagination) return { key, value, decoded, kind: 'pagination', meta: pagination };
+  const sortResult = detectSort(key, decoded);
+  if (sortResult) return { key, value, decoded, kind: 'sort', meta: sortResult };
   const network = detectNetwork(decoded);
   if (network) return { key, value, decoded, kind: 'network', meta: network };
+  const email = detectEmail(decoded);
+  if (email) return { key, value, decoded, kind: 'email', meta: email };
+  const phone = detectPhone(decoded);
+  if (phone) return { key, value, decoded, kind: 'phone', meta: phone };
+  const locale = detectLocale(decoded);
+  if (locale) return { key, value, decoded, kind: 'locale', meta: locale };
+  const semver = detectSemver(decoded);
+  if (semver) return { key, value, decoded, kind: 'semver', meta: semver };
   const ts = detectTimestamp(decoded);
   if (ts) return { key, value, decoded, kind: 'timestamp', meta: ts };
   const color = detectColor(decoded);
@@ -127,7 +151,19 @@ export type { UserAgentResult } from './user-agent';
 export { detectMarketing } from './marketing';
 export type { MarketingResult } from './marketing';
 export { detectNetwork } from './network';
-export type { NetworkResult } from './network';
+export type { NetworkResult, NetworkScope, IpVersion } from './network';
+export { detectPagination } from './pagination';
+export type { PaginationResult } from './pagination';
+export { detectSort } from './sort';
+export type { SortResult } from './sort';
+export { detectEmail } from './email';
+export type { EmailResult } from './email';
+export { detectPhone } from './phone';
+export type { PhoneResult } from './phone';
+export { detectLocale } from './locale';
+export type { LocaleResult } from './locale';
+export { detectSemver } from './semver';
+export type { SemverResult } from './semver';
 export { detectCredential } from './credential';
 export type { CredentialResult } from './credential';
 export { detectDbConnection } from './db-connection';

@@ -16,6 +16,12 @@ export const BADGE_LABEL: Record<AnalyzedParam['kind'], string> = {
   crypto: 'Crypto Wallet',
   'user-agent': 'User Agent',
   marketing: 'Marketing',
-  network: 'Network',
+  pagination: 'Pagination',
+  sort: 'Sort',
+  network: 'IP',
+  email: 'Email',
+  phone: 'Phone',
+  locale: 'Locale',
+  semver: 'Semver',
   uri: 'URI',
 };

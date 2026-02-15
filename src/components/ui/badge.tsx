@@ -21,7 +21,13 @@ const variants: Record<BadgeVariant, string> = {
   crypto: 'border-transparent bg-emerald-500/20 text-emerald-400',
   'user-agent': 'border-transparent bg-slate-500/20 text-slate-400',
   marketing: 'border-transparent bg-amber-500/20 text-amber-400',
+  pagination: 'border-transparent bg-indigo-500/20 text-indigo-400',
+  sort: 'border-transparent bg-indigo-500/20 text-indigo-400',
   network: 'border-transparent bg-cyan-500/20 text-cyan-400',
+  email: 'border-transparent bg-sky-500/20 text-sky-400',
+  phone: 'border-transparent bg-green-500/20 text-green-400',
+  locale: 'border-transparent bg-fuchsia-500/20 text-fuchsia-400',
+  semver: 'border-transparent bg-lime-500/20 text-lime-400',
   uri: 'border-transparent bg-muted text-muted-foreground',
 };
 

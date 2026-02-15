@@ -16,7 +16,13 @@ import { DbConnectionView } from './db-connection-view';
 import { CryptoView } from './crypto-view';
 import { UserAgentView } from './user-agent-view';
 import { MarketingView } from './marketing-view';
+import { PaginationView } from './pagination-view';
+import { SortView } from './sort-view';
 import { NetworkView } from './network-view';
+import { EmailView } from './email-view';
+import { PhoneView } from './phone-view';
+import { LocaleView } from './locale-view';
+import { SemverView } from './semver-view';
 import { UriView } from './uri-view';
 
 type ViewRenderer = (param: AnalyzedParam) => React.ReactNode;
@@ -37,7 +43,13 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
   crypto: (p) => <CryptoView meta={p.meta} />,
   'user-agent': (p) => <UserAgentView meta={p.meta} />,
   marketing: (p) => <MarketingView meta={p.meta} />,
+  pagination: (p) => <PaginationView meta={p.meta} />,
+  sort: (p) => <SortView meta={p.meta} />,
   network: (p) => <NetworkView meta={p.meta} />,
+  email: (p) => <EmailView meta={p.meta} />,
+  phone: (p) => <PhoneView meta={p.meta} />,
+  locale: (p) => <LocaleView meta={p.meta} />,
+  semver: (p) => <SemverView meta={p.meta} />,
   uri: (p) => <UriView decoded={p.decoded} />,
 };
 
