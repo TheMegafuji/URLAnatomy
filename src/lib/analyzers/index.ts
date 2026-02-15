@@ -91,6 +91,8 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (sortResult) return { key, value, decoded, kind: 'sort', meta: sortResult };
   const network = detectNetwork(decoded);
   if (network) return { key, value, decoded, kind: 'network', meta: network };
+  const ts = detectTimestamp(decoded);
+  if (ts) return { key, value, decoded, kind: 'timestamp', meta: ts };
   const email = detectEmail(decoded);
   if (email) return { key, value, decoded, kind: 'email', meta: email };
   const phone = detectPhone(decoded);
@@ -99,8 +101,6 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (locale) return { key, value, decoded, kind: 'locale', meta: locale };
   const semver = detectSemver(decoded);
   if (semver) return { key, value, decoded, kind: 'semver', meta: semver };
-  const ts = detectTimestamp(decoded);
-  if (ts) return { key, value, decoded, kind: 'timestamp', meta: ts };
   const color = detectColor(decoded);
   if (color) return { key, value, decoded, kind: 'color', meta: color };
   const geo = detectGeo(decoded);

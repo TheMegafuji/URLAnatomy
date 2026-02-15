@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Pencil, Dices, Copy, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover } from '@/components/ui/popover';
 import { DetailSheet } from '@/components/detail-sheet';
 import { ParamDetail } from '@/components/detectors/param-detail';
 import type { AnalyzedParam } from '@/lib/analyzers';
 import { BADGE_LABEL } from '@/lib/param-labels';
+import { generateValue, canGenerate } from '@/lib/generators';
+import { Input } from '@/components/ui/input';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 const MAX_VALUE_LEN = 48;
 
@@ -17,16 +20,60 @@ function truncate(s: string, max: number): string {
   return s.slice(0, max - 3) + '…';
 }
 
+function ActionButton({
+  onClick,
+  label,
+  title: titleProp,
+  icon: Icon,
+  disabled,
+}: {
+  onClick: () => void;
+  label: string;
+  title?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  disabled?: boolean;
+}) {
+  const title = titleProp ?? label;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:pointer-events-none"
+      aria-label={label}
+    >
+      <Icon className="h-3.5 w-3.5" />
+    </button>
+  );
+}
+
 function ParamTableRow({
   param,
   index,
   onOpenDetail,
+  onReplaceParam,
+  editingIndex,
+  editValue,
+  onStartEdit,
+  onEditChange,
+  onCommitEdit,
+  onCancelEdit,
 }: {
   param: AnalyzedParam;
   index: number;
   onOpenDetail: (param: AnalyzedParam) => void;
+  onReplaceParam?: (index: number, newValue: string) => void;
+  editingIndex: number | null;
+  editValue: string;
+  onStartEdit: (index: number, value: string) => void;
+  onEditChange: (value: string) => void;
+  onCommitEdit: (index: number) => void;
+  onCancelEdit: () => void;
 }) {
+  const isEditing = editingIndex === index;
   const valueDisplay = truncate(param.decoded || param.value, MAX_VALUE_LEN);
+  const canGen = canGenerate(param.kind);
 
   const trigger = (
     <span
@@ -47,6 +94,20 @@ function ParamTableRow({
     </div>
   );
 
+  const handleGenerate = useCallback(() => {
+    if (!onReplaceParam) return;
+    onReplaceParam(index, generateValue(param));
+  }, [index, param, onReplaceParam]);
+
+  const copyText = param.decoded || param.value;
+  const { copy: copyValue, copied } = useCopyToClipboard();
+  const handleCopyValue = useCallback(() => copyValue(copyText), [copyValue, copyText]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') onCommitEdit(index);
+    if (e.key === 'Escape') onCancelEdit();
+  };
+
   return (
     <motion.tr
       initial={{ opacity: 0 }}
@@ -63,18 +124,56 @@ function ParamTableRow({
         </Badge>
       </td>
       <td className="py-2.5 pr-3 align-top max-w-[200px]">
-        <button
-          type="button"
-          onClick={() => onOpenDetail(param)}
-          className="md:hidden text-left w-full font-mono text-xs break-all inline-flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-ring rounded py-0.5"
-        >
-          {valueDisplay}
-          <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
-        </button>
-        <div className="hidden md:block">
-          <Popover trigger={trigger} content={detailContent} />
-        </div>
+        {isEditing ? (
+          <Input
+            value={editValue}
+            onChange={(e) => onEditChange(e.target.value)}
+            onBlur={() => onCommitEdit(index)}
+            onKeyDown={handleKeyDown}
+            className="h-7 text-xs font-mono"
+            autoFocus
+          />
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => onOpenDetail(param)}
+              className="md:hidden text-left w-full font-mono text-xs break-all inline-flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-ring rounded py-0.5"
+            >
+              {valueDisplay}
+              <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+            </button>
+            <div className="hidden md:block">
+              <Popover trigger={trigger} content={detailContent} />
+            </div>
+          </>
+        )}
       </td>
+      {onReplaceParam && (
+        <td className="py-2.5 pr-3 align-top w-0">
+          <div className="flex items-center gap-0.5">
+            <ActionButton
+              label={copied ? 'Copied' : 'Copy value'}
+              title={copied ? 'Copied' : 'Copy this value to clipboard'}
+              icon={copied ? Check : Copy}
+              onClick={handleCopyValue}
+            />
+            <ActionButton
+              label="Edit value"
+              title="Edit this value inline"
+              icon={Pencil}
+              onClick={() => onStartEdit(index, param.decoded || param.value)}
+            />
+            <ActionButton
+              label="Generate same type"
+              title="Generate a new value of the same type (e.g. new UUID, new JWT)"
+              icon={Dices}
+              onClick={handleGenerate}
+              disabled={!canGen}
+            />
+          </div>
+        </td>
+      )}
     </motion.tr>
   );
 }
@@ -82,17 +181,40 @@ function ParamTableRow({
 export function ParamTable({
   params,
   emptyMessage = 'No parameters',
+  onReplaceParam,
 }: {
   params: AnalyzedParam[];
   emptyMessage?: string;
+  onReplaceParam?: (index: number, newValue: string) => void;
 }) {
   const [sheetParam, setSheetParam] = useState<AnalyzedParam | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState('');
 
-  const openDetail = (param: AnalyzedParam) => {
+  const openDetail = useCallback((param: AnalyzedParam) => {
     setSheetParam(param);
     setSheetOpen(true);
-  };
+  }, []);
+
+  const handleStartEdit = useCallback((index: number, value: string) => {
+    setEditingIndex(index);
+    setEditValue(value);
+  }, []);
+
+  const handleCommitEdit = useCallback(
+    (index: number) => {
+      if (onReplaceParam && editValue.trim() !== '') onReplaceParam(index, editValue.trim());
+      setEditingIndex(null);
+      setEditValue('');
+    },
+    [onReplaceParam, editValue]
+  );
+
+  const handleCancelEdit = useCallback(() => {
+    setEditingIndex(null);
+    setEditValue('');
+  }, []);
 
   if (params.length === 0)
     return <p className="text-sm text-muted-foreground py-4">{emptyMessage}</p>;
@@ -104,6 +226,9 @@ export function ParamTable({
             <th className="py-2 pl-3 pr-3 text-left font-medium text-xs">Param</th>
             <th className="py-2 pr-3 text-left font-medium text-xs">Type</th>
             <th className="py-2 pr-3 text-left font-medium text-xs">Value</th>
+            {onReplaceParam && (
+              <th className="py-2 pr-3 text-left font-medium text-xs w-0">Actions</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -113,6 +238,13 @@ export function ParamTable({
               param={param}
               index={i}
               onOpenDetail={openDetail}
+              onReplaceParam={onReplaceParam}
+              editingIndex={editingIndex}
+              editValue={editValue}
+              onStartEdit={handleStartEdit}
+              onEditChange={setEditValue}
+              onCommitEdit={handleCommitEdit}
+              onCancelEdit={handleCancelEdit}
             />
           ))}
         </tbody>

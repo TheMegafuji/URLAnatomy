@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight, ClipboardPaste, Dices, Github, Shield } from
 import { parseUrl, analyzeParsedUrl } from '@/lib/analyzers';
 import { debounce, extractFirstUrl } from '@/lib/utils';
 import { generateExampleUrl } from '@/lib/example-url';
+import { replacePathSegment, replaceQueryParam } from '@/lib/url-build';
 import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -67,6 +68,34 @@ export default function Home() {
   }, [analysis?.hasJwt]);
 
   const hasResults = parsed && (analysis?.pathParams.length || analysis?.queryParams.length);
+
+  const [hasModifiedUrl, setHasModifiedUrl] = useState(false);
+
+  const onReplacePathSegment = useCallback(
+    (index: number, newValue: string) => {
+      if (!parsed) return;
+      const built = replacePathSegment(parsed, index, newValue);
+      const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
+      const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
+      setInput(nextUrl);
+      runAnalysis(nextUrl);
+      setHasModifiedUrl(true);
+    },
+    [parsed, input, runAnalysis]
+  );
+
+  const onReplaceQueryParam = useCallback(
+    (index: number, newValue: string) => {
+      if (!parsed) return;
+      const built = replaceQueryParam(parsed, index, newValue);
+      const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
+      const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
+      setInput(nextUrl);
+      runAnalysis(nextUrl);
+      setHasModifiedUrl(true);
+    },
+    [parsed, input, runAnalysis]
+  );
 
   const handlePasteFromClipboard = useCallback(async () => {
     try {
@@ -161,14 +190,22 @@ export default function Home() {
                 className="min-h-[180px] resize-y font-mono text-base border-2 border-input pr-11"
                 autoFocus
               />
-              <button
-                type="button"
-                onClick={handlePasteFromClipboard}
-                className="absolute right-2 top-2 inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                aria-label="Paste from clipboard"
-              >
-                <ClipboardPaste className="h-5 w-5" />
-              </button>
+              <div className="absolute right-2 top-2 flex items-center gap-0.5">
+                {hasModifiedUrl && (
+                  <CopyButton
+                    text={input.trim()}
+                    aria-label="Copy URL"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={handlePasteFromClipboard}
+                  className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  aria-label="Paste from clipboard"
+                >
+                  <ClipboardPaste className="h-5 w-5" />
+                </button>
+              </div>
             </div>
             <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
               <button
@@ -264,6 +301,7 @@ export default function Home() {
                             <ParamTable
                               params={analysis?.pathParams ?? []}
                               emptyMessage="No path segments"
+                              onReplaceParam={onReplacePathSegment}
                             />
                           </div>
                         </div>
@@ -282,6 +320,7 @@ export default function Home() {
                     <ParamTable
                       params={analysis?.queryParams ?? []}
                       emptyMessage="No query params"
+                      onReplaceParam={onReplaceQueryParam}
                     />
                   </div>
                 </article>

@@ -240,9 +240,19 @@ export interface PhoneResult {
   telHref: string;
 }
 
+function looksLikeTimestamp(value: string): boolean {
+  const digits = value.replace(/\D/g, '');
+  if (digits !== value.trim() || digits.length < 9) return false;
+  const len = digits.length;
+  if (len >= 9 && len <= 10) return true;
+  if (len >= 12 && len <= 13) return true;
+  return false;
+}
+
 export function detectPhone(value: string): PhoneResult | null {
   const v = value.trim();
   if (!v || !DIGITS_ONLY.test(v) || v.replace(/\D/g, '').length < 7) return null;
+  if (looksLikeTimestamp(v)) return null;
   if (!E164_REGEX.test(v)) return null;
   const normalized = normalizePhone(v);
   const withPlus = normalized.startsWith('+') ? normalized : '+' + normalized;
