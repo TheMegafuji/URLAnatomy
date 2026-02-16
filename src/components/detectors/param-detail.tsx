@@ -24,6 +24,17 @@ import { PhoneView } from './phone-view';
 import { LocaleView } from './locale-view';
 import { SemverView } from './semver-view';
 import { UriView } from './uri-view';
+import { OauthView } from './oauth-view';
+import { DomainView } from './domain-view';
+import { BooleanView } from './boolean-view';
+import { MimeView } from './mime-view';
+import { DurationView } from './duration-view';
+import { HexView } from './hex-view';
+import { TokenPrefixView } from './token-prefix-view';
+import { SlugView } from './slug-view';
+import { CronView } from './cron-view';
+import { RegexView } from './regex-view';
+import { FilePathView } from './file-path-view';
 
 type ViewRenderer = (param: AnalyzedParam) => React.ReactNode;
 
@@ -38,6 +49,7 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
   geo: (p) => <GeoView meta={p.meta} />,
   xss: (p) => <XssView meta={p.meta} />,
   sqli: (p) => <SqliView meta={p.meta} />,
+  token_prefix: (p) => <TokenPrefixView meta={p.meta} />,
   credential: (p) => <CredentialView meta={p.meta} />,
   db_connection: (p) => <DbConnectionView meta={p.meta} />,
   crypto: (p) => <CryptoView meta={p.meta} />,
@@ -45,11 +57,21 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
   marketing: (p) => <MarketingView meta={p.meta} />,
   pagination: (p) => <PaginationView meta={p.meta} />,
   sort: (p) => <SortView meta={p.meta} />,
+  oauth: (p) => <OauthView meta={p.meta} />,
+  boolean: (p) => <BooleanView meta={p.meta} />,
   network: (p) => <NetworkView meta={p.meta} />,
   email: (p) => <EmailView meta={p.meta} />,
   phone: (p) => <PhoneView meta={p.meta} />,
   locale: (p) => <LocaleView meta={p.meta} />,
   semver: (p) => <SemverView meta={p.meta} />,
+  domain: (p) => <DomainView meta={p.meta} />,
+  mime: (p) => <MimeView meta={p.meta} />,
+  duration: (p) => <DurationView meta={p.meta} />,
+  hex: (p) => <HexView meta={p.meta} />,
+  slug: (p) => <SlugView meta={p.meta} />,
+  cron: (p) => <CronView meta={p.meta} />,
+  regex: (p) => <RegexView meta={p.meta} />,
+  file_path: (p) => <FilePathView meta={p.meta} />,
   uri: (p) => <UriView decoded={p.decoded} />,
 };
 

@@ -52,6 +52,17 @@ const PARAM_NAMES: Record<ParamKind, string[]> = {
   phone: ['phone', 'tel', 'mobile', 'contact_phone'],
   locale: ['locale', 'lang', 'language', 'hl', 'region'],
   semver: ['version', 'v', 'api_version', 'ver'],
+  oauth: ['state', 'code', 'redirect_uri', 'access_token'],
+  domain: ['host', 'domain', 'origin', 'api_host'],
+  boolean: ['enabled', 'active', 'debug', 'flag'],
+  mime: ['accept', 'content_type', 'format'],
+  duration: ['ttl', 'timeout', 'expires_in', 'duration'],
+  hex: ['nonce', 'id', 'request_id'],
+  token_prefix: ['api_key', 'token', 'secret'],
+  slug: ['slug', 'path', 'segment', 'topic'],
+  cron: ['schedule', 'cron', 'interval'],
+  regex: ['pattern', 'filter', 'match'],
+  file_path: ['path', 'file', 'resource'],
 };
 
 const PATH_KINDS: ParamKind[] = ['uuid', 'timestamp'];

@@ -7,20 +7,33 @@
 ## Features
 
 - **URL parsing** — Protocol, host, path, and query parameters with dual view (encoded vs decoded)
-- **Security** — XSS and SQL injection pattern detection; credential, API key, and DB connection string detection (values masked by default)
+- **Security** — XSS and SQL injection pattern detection; credential, API key prefix, and DB connection string detection (values masked by default)
 - **Marketing / tracking** — UTM, gclid, fbclid, ttclid, ref, affiliate; **Copy Clean URL** to strip trackers and copy a marketing-free link
 - **JWT** — Decode header and payload, validate expiration, formatted output
 - **Timestamps** — Seconds, milliseconds, ISO8601; relative and absolute dates
 - **UUID** — Validation and version detection (v4, v7, etc.)
-- **Base64** — Decode; preview text or binary/image when applicable
+- **Base64** — Decode; preview text or binary when applicable (takes precedence over OAuth when value decodes to JSON)
 - **JSON** — Detect and pretty-print JSON in params (including stringified)
-- **Hash** — Heuristic detection (e.g. MD5, SHA256 by length)
+- **Hash** — Heuristic detection (MD5, SHA1, SHA256 by length)
+- **Hex** — Long hex strings (nonces, IDs); byte length and “possible nonce/ID” hint
 - **Color** — Hex/RGB detection with visual swatch
 - **Geo** — Lat/lng detection with map or location context
 - **Network** — IPv4/IPv6 and CIDR detection; private vs public scope
 - **Crypto** — Ethereum, Bitcoin (legacy/SegWit/Bech32), Solana wallet addresses with explorer links
 - **User-Agent** — Detection and parsed Browser/OS from UA strings
-- **URI decoded** — Human-readable decoding of encoded characters
+- **OAuth / OIDC** — Params by name (`state`, `code`, `id_token`, `access_token`, `redirect_uri`); label only (no decode); value not shown when it looks like JWT or Base64
+- **Token prefix** — Known API key prefixes (e.g. Stripe `sk_live_`, GitHub `ghp_`, Slack `xoxb-`); masked value and “do not share” warning
+- **Domain / hostname** — Values that are hosts (e.g. `api.stripe.com`); root and subdomain; internal/suspicious warning
+- **Boolean / flag** — `true`/`false`, `1`/`0`, `yes`/`no`, `on`/`off`; shown as Yes/No or Enabled/Disabled
+- **MIME type** — `type/subtype` (e.g. `application/json`, `image/png`); type, subtype, and short description
+- **Duration (ISO 8601)** — `PT30M`, `P1D`, `PT1H30M`; human-readable (“30 minutes”, “1 day”) and seconds
+- **Slug** — Path or param that looks like a URL slug (lowercase, hyphens, no spaces)
+- **Cron expression** — Five/six-field cron (e.g. `0 * * * *`); validity and short description
+- **Regex** — Value that looks like a regex; syntax check and short summary
+- **File path** — Unix or Windows path; path traversal warning when `..` is present
+- **URI** — Fallback for other values; pattern and length preserved when generating a new value
+
+Each detected type supports **Generate** (new value of the same type) and **Edit** (inline edit). Generated values are chosen so re-analysis keeps the same type.
 
 ---
 

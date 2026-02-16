@@ -8,6 +8,7 @@ import { detectColor } from './color';
 import { detectGeo } from './geo';
 import { detectXss } from './xss';
 import { detectSqli } from './sqli';
+import { detectTokenPrefix } from './token-prefix';
 import { detectCredential } from './credential';
 import { detectDbConnection } from './db-connection';
 import { detectCrypto } from './crypto';
@@ -15,11 +16,21 @@ import { detectUserAgent } from './user-agent';
 import { detectMarketing } from './marketing';
 import { detectPagination } from './pagination';
 import { detectSort } from './sort';
+import { detectOauth } from './oauth';
+import { detectBoolean } from './boolean';
 import { detectNetwork } from './network';
 import { detectEmail } from './email';
 import { detectPhone } from './phone';
 import { detectLocale } from './locale';
 import { detectSemver } from './semver';
+import { detectDomain } from './domain';
+import { detectMime } from './mime';
+import { detectDuration } from './duration';
+import { detectHex } from './hex';
+import { detectSlug } from './slug';
+import { detectCron } from './cron';
+import { detectRegex } from './regex';
+import { detectFilePath } from './file-path';
 import type { ParsedUrl } from './url-parse';
 
 export type ParamKind =
@@ -33,6 +44,7 @@ export type ParamKind =
   | 'geo'
   | 'xss'
   | 'sqli'
+  | 'token_prefix'
   | 'credential'
   | 'db_connection'
   | 'crypto'
@@ -40,11 +52,21 @@ export type ParamKind =
   | 'marketing'
   | 'pagination'
   | 'sort'
+  | 'oauth'
+  | 'boolean'
   | 'network'
   | 'email'
   | 'phone'
   | 'locale'
   | 'semver'
+  | 'domain'
+  | 'mime'
+  | 'duration'
+  | 'hex'
+  | 'slug'
+  | 'cron'
+  | 'regex'
+  | 'file_path'
   | 'uri';
 
 export interface AnalyzedParam {
@@ -69,6 +91,8 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (xss) return { key, value, decoded, kind: 'xss', meta: xss };
   const sqli = detectSqli(decoded);
   if (sqli) return { key, value, decoded, kind: 'sqli', meta: sqli };
+  const tokenPrefix = detectTokenPrefix(decoded);
+  if (tokenPrefix) return { key, value, decoded, kind: 'token_prefix', meta: tokenPrefix };
   const credential = detectCredential(decoded);
   if (credential) return { key, value, decoded, kind: 'credential', meta: credential };
   const dbConnection = detectDbConnection(decoded);
@@ -89,6 +113,8 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (pagination) return { key, value, decoded, kind: 'pagination', meta: pagination };
   const sortResult = detectSort(key, decoded);
   if (sortResult) return { key, value, decoded, kind: 'sort', meta: sortResult };
+  const booleanVal = detectBoolean(decoded);
+  if (booleanVal) return { key, value, decoded, kind: 'boolean', meta: booleanVal };
   const network = detectNetwork(decoded);
   if (network) return { key, value, decoded, kind: 'network', meta: network };
   const ts = detectTimestamp(decoded);
@@ -105,10 +131,28 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (color) return { key, value, decoded, kind: 'color', meta: color };
   const geo = detectGeo(decoded);
   if (geo) return { key, value, decoded, kind: 'geo', meta: geo };
+  const mime = detectMime(decoded);
+  if (mime) return { key, value, decoded, kind: 'mime', meta: mime };
+  const filePath = detectFilePath(decoded);
+  if (filePath) return { key, value, decoded, kind: 'file_path', meta: filePath };
   const b64 = detectBase64(decoded);
   if (b64) return { key, value, decoded, kind: 'base64', meta: b64 };
   const hash = detectHash(decoded);
   if (hash) return { key, value, decoded, kind: 'hash', meta: hash };
+  const hexVal = detectHex(decoded);
+  if (hexVal) return { key, value, decoded, kind: 'hex', meta: hexVal };
+  const domain = detectDomain(decoded);
+  if (domain) return { key, value, decoded, kind: 'domain', meta: domain };
+  const duration = detectDuration(decoded);
+  if (duration) return { key, value, decoded, kind: 'duration', meta: duration };
+  const slug = detectSlug(decoded);
+  if (slug) return { key, value, decoded, kind: 'slug', meta: slug };
+  const cron = detectCron(decoded);
+  if (cron) return { key, value, decoded, kind: 'cron', meta: cron };
+  const regexVal = detectRegex(decoded);
+  if (regexVal) return { key, value, decoded, kind: 'regex', meta: regexVal };
+  const oauth = detectOauth(key, decoded);
+  if (oauth) return { key, value, decoded, kind: 'oauth', meta: oauth };
   return { key, value, decoded, kind: 'uri', meta: null };
 }
 
@@ -170,3 +214,25 @@ export { detectDbConnection } from './db-connection';
 export type { DbConnectionResult } from './db-connection';
 export { detectCrypto } from './crypto';
 export type { CryptoResult } from './crypto';
+export { detectTokenPrefix } from './token-prefix';
+export type { TokenPrefixResult } from './token-prefix';
+export { detectOauth } from './oauth';
+export type { OauthResult } from './oauth';
+export { detectBoolean } from './boolean';
+export type { BooleanResult } from './boolean';
+export { detectDomain } from './domain';
+export type { DomainResult } from './domain';
+export { detectMime } from './mime';
+export type { MimeResult } from './mime';
+export { detectDuration } from './duration';
+export type { DurationResult } from './duration';
+export { detectHex } from './hex';
+export type { HexResult } from './hex';
+export { detectSlug } from './slug';
+export type { SlugResult } from './slug';
+export { detectCron } from './cron';
+export type { CronResult } from './cron';
+export { detectRegex } from './regex';
+export type { RegexResult } from './regex';
+export { detectFilePath } from './file-path';
+export type { FilePathResult } from './file-path';

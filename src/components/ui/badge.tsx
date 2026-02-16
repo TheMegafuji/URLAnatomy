@@ -28,6 +28,17 @@ const variants: Record<BadgeVariant, string> = {
   phone: 'border-transparent bg-green-500/20 text-green-400',
   locale: 'border-transparent bg-fuchsia-500/20 text-fuchsia-400',
   semver: 'border-transparent bg-lime-500/20 text-lime-400',
+  token_prefix: 'border-transparent bg-amber-500/20 text-amber-400',
+  oauth: 'border-transparent bg-violet-500/20 text-violet-400',
+  boolean: 'border-transparent bg-sky-500/20 text-sky-400',
+  domain: 'border-transparent bg-indigo-500/20 text-indigo-400',
+  mime: 'border-transparent bg-rose-500/20 text-rose-400',
+  duration: 'border-transparent bg-amber-500/20 text-amber-400',
+  hex: 'border-transparent bg-orange-500/20 text-orange-400',
+  slug: 'border-transparent bg-emerald-500/20 text-emerald-400',
+  cron: 'border-transparent bg-slate-500/20 text-slate-400',
+  regex: 'border-transparent bg-purple-500/20 text-purple-400',
+  file_path: 'border-transparent bg-zinc-500/20 text-zinc-400',
   uri: 'border-transparent bg-muted text-muted-foreground',
 };
 

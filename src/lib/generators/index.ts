@@ -362,6 +362,105 @@ function genSqli(): string {
   return rand(["1 OR 1=1", "'; DROP TABLE users--", "1 UNION SELECT null--"]);
 }
 
+function genOauth(param: AnalyzedParam): string {
+  const role = (param.meta as { role?: string })?.role ?? param.key?.toLowerCase().replace(/-/g, '_') ?? 'state';
+  if (role === 'redirect_uri') return `${rand(['http', 'https'])}://${stringFromChars(8, URI_ALNUM)}.example.com/callback`;
+  if (role === 'state' || role === 'code') return alnum(role === 'state' ? 16 : 24);
+  return alnum(32);
+}
+
+function genDomain(): string {
+  const sub = rand(['api', 'cdn', 'app', 'www', 'static']);
+  const name = stringFromChars(4 + randInt(0, 6), URI_LOWER);
+  const tld = rand(['com', 'org', 'io', 'net']);
+  return `${sub}.${name}.${tld}`;
+}
+
+function genBoolean(): string {
+  return rand(['true', 'false', '1', '0', 'yes', 'no']);
+}
+
+const MIME_NEVER_B64 = [
+  'application/vnd.ms-excel',
+  'application/x-shockwave-flash',
+  'text/x.makefile',
+  'application/vnd.oasis.opendocument.text',
+  'image/x-icon',
+  'application/x-www-form-urlencoded',
+];
+
+function genMime(param: AnalyzedParam): string {
+  const meta = param.meta as { raw?: string; typeName?: string; subtype?: string } | null;
+  const raw = (meta?.raw ?? param.decoded ?? param.value ?? '').trim();
+  if (raw && /^[a-z][a-z0-9.+-]*\/[a-z0-9.+-]+$/i.test(raw)) {
+    const typeName = raw.split('/')[0]?.toLowerCase() ?? 'application';
+    const sameShape = MIME_NEVER_B64.filter((m) => m.startsWith(typeName + '/'));
+    if (sameShape.length) return rand(sameShape);
+  }
+  return rand(MIME_NEVER_B64);
+}
+
+function genDuration(param: AnalyzedParam): string {
+  const meta = param.meta as { raw?: string } | null;
+  if (meta?.raw?.startsWith('P') && meta.raw.includes('T')) return rand(['PT30M', 'PT1H', 'PT15M', 'PT2H']);
+  if (meta?.raw?.startsWith('P') && !meta.raw.includes('T')) return rand(['P1D', 'P7D', 'P30D']);
+  return rand(['PT30M', 'P1D', 'PT1H30M']);
+}
+
+function genHex(param: AnalyzedParam): string {
+  const meta = param.meta as { raw?: string } | null;
+  let charLen = meta?.raw?.length ?? 24;
+  if (charLen === 32 || charLen === 40 || charLen === 64) charLen = 24;
+  return hex(Math.floor(charLen / 2));
+}
+
+function genTokenPrefix(param: AnalyzedParam): string {
+  const meta = param.meta as { prefix?: string } | null;
+  const prefix = meta?.prefix ?? 'sk_test_';
+  const suffixLen = prefix === 'sk_test_' || prefix === 'sk_live_' ? 24 : 36;
+  return prefix + alnum(suffixLen);
+}
+
+const SLUG_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
+const SLUG_DIGITS = '0123456789';
+
+function genSlug(param: AnalyzedParam): string {
+  const s = (param.decoded || param.value || '').trim();
+  const segments = s.split('-').filter(Boolean);
+  const len = Math.max(s.length, 2);
+  if (segments.length === 0) {
+    return stringFromChars(len, SLUG_CHARS);
+  }
+  const segLens = segments.map((seg) => Math.max(1, seg.length));
+  const parts = segLens.map((l) => stringFromChars(l, SLUG_CHARS));
+  const first = parts[0] ?? '';
+  if (!/\d/.test(first)) {
+    const idx = randInt(0, first.length - 1);
+    parts[0] = first.slice(0, idx) + stringFromChars(1, SLUG_DIGITS) + first.slice(idx + 1);
+  }
+  return parts.join('-');
+}
+
+function genCron(): string {
+  return rand(['0 * * * *', '0 0 * * *', '*/15 * * * *', '0 12 * * *']);
+}
+
+function genRegex(param: AnalyzedParam): string {
+  const meta = param.meta as { raw?: string } | null;
+  const len = meta?.raw?.length ?? 10;
+  const n = Math.max(1, Math.min(20, Math.floor(len / 4)));
+  return `^[a-zA-Z0-9]{${n},}$`;
+}
+
+function genFilePath(param: AnalyzedParam): string {
+  const meta = param.meta as { style?: string; raw?: string } | null;
+  const style = meta?.style ?? 'unix';
+  const parts = meta?.raw?.split(/[/\\]/).filter(Boolean) ?? ['api', 'v1', 'file'];
+  const segCount = Math.max(1, parts.length);
+  const segs = Array.from({ length: segCount }, () => stringFromChars(2 + randInt(0, 4), URI_LOWER));
+  return style === 'windows' ? `C:\\${segs.join('\\')}` : `/${segs.join('/')}`;
+}
+
 const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
   timestamp: (p) => genTimestamp(p.meta as TimestampResult | null),
   uuid: (p) => genUuid(p.meta as UuidResult | null),
@@ -386,6 +485,17 @@ const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
   uri: genUri,
   xss: genXss,
   sqli: genSqli,
+  oauth: genOauth,
+  domain: genDomain,
+  boolean: genBoolean,
+  mime: genMime,
+  duration: genDuration,
+  hex: genHex,
+  token_prefix: genTokenPrefix,
+  slug: genSlug,
+  cron: genCron,
+  regex: genRegex,
+  file_path: genFilePath,
 };
 
 export function generateValue(param: AnalyzedParam): string {
@@ -420,6 +530,7 @@ export const PARAM_KINDS: ParamKind[] = [
   'geo',
   'xss',
   'sqli',
+  'token_prefix',
   'credential',
   'db_connection',
   'crypto',
@@ -427,10 +538,20 @@ export const PARAM_KINDS: ParamKind[] = [
   'marketing',
   'pagination',
   'sort',
+  'oauth',
+  'boolean',
   'network',
   'email',
   'phone',
   'locale',
   'semver',
+  'domain',
+  'mime',
+  'duration',
+  'hex',
+  'slug',
+  'cron',
+  'regex',
+  'file_path',
   'uri',
 ];
