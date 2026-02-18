@@ -25,6 +25,8 @@ export const BADGE_LABEL: Record<AnalyzedParam['kind'], string> = {
   email: 'Email',
   phone: 'Phone',
   locale: 'Locale',
+  currency: 'Currency',
+  number: 'Number',
   semver: 'Semver',
   domain: 'Domain',
   mime: 'MIME',
@@ -34,5 +36,6 @@ export const BADGE_LABEL: Record<AnalyzedParam['kind'], string> = {
   cron: 'Cron',
   regex: 'Regex',
   file_path: 'File Path',
+  authorization: 'Authorization',
   uri: 'URI',
 };

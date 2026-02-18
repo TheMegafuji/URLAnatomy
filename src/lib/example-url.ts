@@ -63,6 +63,9 @@ const PARAM_NAMES: Record<ParamKind, string[]> = {
   cron: ['schedule', 'cron', 'interval'],
   regex: ['pattern', 'filter', 'match'],
   file_path: ['path', 'file', 'resource'],
+  currency: ['currency', 'currency_symbol', 'currency_code', 'curr'],
+  number: ['amount', 'price', 'quantity', 'count', 'total', 'value'],
+  authorization: ['Authorization', 'authorization', 'auth'],
 };
 
 const PATH_KINDS: ParamKind[] = ['uuid', 'timestamp'];

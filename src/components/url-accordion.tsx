@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export function UrlAccordion({ original, decoded }: { original: string; decoded: string }) {
   const [open, setOpen] = useState(false);
+  if (original === decoded) return null;
   return (
     <article className="rounded-lg border-2 border-border bg-card overflow-visible">
       <button

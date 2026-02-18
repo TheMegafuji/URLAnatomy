@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronRight, ClipboardPaste, Dices, Github, Shield } from 'lucide-react';
-import { parseUrl, analyzeParsedUrl } from '@/lib/analyzers';
+import { parseUrl, analyzeParsedUrl, analyzeParam, detectJson } from '@/lib/analyzers';
 import { parseCurl } from '@/lib/curl-parse';
+import { buildCurl } from '@/lib/curl-build';
 import { debounce, extractFirstUrl } from '@/lib/utils';
 import { generateExampleUrl } from '@/lib/example-url';
 import { replacePathSegment, replaceQueryParam } from '@/lib/url-build';
@@ -19,6 +20,7 @@ import { SidebarAd } from '@/components/ads/sidebar-ad';
 import { BottomAd } from '@/components/ads/bottom-ad';
 import { Footer } from '@/components/footer';
 import { SeoAccordion } from '@/components/seo/SeoAccordion';
+import { PayloadEditor } from '@/components/curl/payload-editor';
 import Link from 'next/link';
 
 const DEBOUNCE_MS = 300;
@@ -26,7 +28,11 @@ const DEBOUNCE_MS = 300;
 export default function Home() {
   const [input, setInput] = useState('');
   const [parsed, setParsed] = useState<ReturnType<typeof parseUrl>>(null);
-  const [curlMeta, setCurlMeta] = useState<{ method: string } | null>(null);
+  const [curlMeta, setCurlMeta] = useState<{
+    method: string;
+    payload: string | null;
+    headers: { name: string; value: string }[];
+  } | null>(null);
   const [pathExpanded, setPathExpanded] = useState(false);
   const analysis = useMemo(() => (parsed ? analyzeParsedUrl(parsed) : null), [parsed]);
 
@@ -46,6 +52,45 @@ export default function Home() {
     analysis?.queryParams.some((p) => p.kind === 'marketing')
   );
 
+  const curlHeaderParams = useMemo(
+    () =>
+      curlMeta?.headers.map((h) => analyzeParam(h.name, h.value)) ?? [],
+    [curlMeta]
+  );
+
+  const curlPayload = useMemo(() => {
+    if (!curlMeta?.payload) return null;
+    const json = detectJson(curlMeta.payload);
+    if (!json || !json.valid) {
+      return { json: null, fields: [], raw: curlMeta.payload };
+    }
+    const formattedJson = {
+      ...json,
+      formatted: JSON.stringify(json.parsed, null, 2),
+    };
+    const value = json.parsed;
+    if (value != null && typeof value === 'object' && !Array.isArray(value)) {
+      const entries = Object.entries(value as Record<string, unknown>);
+      const fields = entries.map(([key, v]) =>
+        analyzeParam(
+          key,
+          typeof v === 'string' ? v : JSON.stringify(v)
+        )
+      );
+      return { json: formattedJson, fields, raw: curlMeta.payload };
+    }
+    if (Array.isArray(value)) {
+      const fields = (value as unknown[]).map((v, index) =>
+        analyzeParam(
+          String(index),
+          typeof v === 'string' ? v : JSON.stringify(v)
+        )
+      );
+      return { json: formattedJson, fields, raw: curlMeta.payload };
+    }
+    return { json: formattedJson, fields: [], raw: curlMeta.payload };
+  }, [curlMeta]);
+
   const runAnalysis = useCallback((value: string) => {
     const trimmed = value.trim();
     if (!trimmed) {
@@ -55,19 +100,39 @@ export default function Home() {
     }
     const curlResult = parseCurl(trimmed);
     if (curlResult) {
-      setCurlMeta({ method: curlResult.method });
-      setParsed(parseUrl(curlResult.url));
+      setCurlMeta({
+        method: curlResult.method,
+        payload: curlResult.payload,
+        headers: curlResult.headers,
+      });
+      const urlResult = parseUrl(curlResult.url);
+      if (urlResult) {
+        setParsed(urlResult);
+      } else {
+        setParsed(null);
+        setCurlMeta(null);
+      }
     } else {
       setCurlMeta(null);
-      setParsed(parseUrl(trimmed));
+      const urlResult = parseUrl(trimmed);
+      if (urlResult) {
+        setParsed(urlResult);
+      } else {
+        setParsed(null);
+      }
     }
   }, []);
 
   const debouncedRun = useMemo(() => debounce(runAnalysis, DEBOUNCE_MS), [runAnalysis]);
+  const [skipNextAnalysis, setSkipNextAnalysis] = useState(false);
 
   useEffect(() => {
+    if (skipNextAnalysis) {
+      setSkipNextAnalysis(false);
+      return;
+    }
     debouncedRun(input);
-  }, [input, debouncedRun]);
+  }, [input, debouncedRun, skipNextAnalysis]);
 
   useEffect(() => {
     if (analysis?.hasJwt && typeof document !== 'undefined')
@@ -79,31 +144,94 @@ export default function Home() {
   const hasResults = parsed && (analysis?.pathParams.length || analysis?.queryParams.length);
 
   const [hasModifiedUrl, setHasModifiedUrl] = useState(false);
+  const [hasModifiedCurl, setHasModifiedCurl] = useState(false);
+
+  const onReplaceHeader = useCallback(
+    (index: number, newValue: string) => {
+      if (!curlMeta) return;
+      const updatedHeaders = [...curlMeta.headers];
+      updatedHeaders[index] = { ...updatedHeaders[index], value: newValue };
+      setCurlMeta({ ...curlMeta, headers: updatedHeaders });
+      const newCurl = buildCurl({
+        url: parsed ? `${parsed.protocol}//${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}` : '',
+        method: curlMeta.method,
+        headers: updatedHeaders,
+        payload: curlMeta.payload,
+      });
+      setSkipNextAnalysis(true);
+      setInput(newCurl);
+      setHasModifiedCurl(true);
+    },
+    [curlMeta, parsed]
+  );
+
+  const onReplacePayload = useCallback(
+    (newPayload: string) => {
+      if (!curlMeta) return;
+      setCurlMeta({ ...curlMeta, payload: newPayload });
+      const newCurl = buildCurl({
+        url: parsed ? `${parsed.protocol}//${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}` : '',
+        method: curlMeta.method,
+        headers: curlMeta.headers,
+        payload: newPayload,
+      });
+      setSkipNextAnalysis(true);
+      setInput(newCurl);
+      setHasModifiedCurl(true);
+    },
+    [curlMeta, parsed]
+  );
 
   const onReplacePathSegment = useCallback(
     (index: number, newValue: string) => {
       if (!parsed) return;
       const built = replacePathSegment(parsed, index, newValue);
-      const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
-      const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
-      setInput(nextUrl);
-      runAnalysis(nextUrl);
-      setHasModifiedUrl(true);
+      if (curlMeta) {
+        const fullUrl = `${built}`;
+        const newCurl = buildCurl({
+          url: fullUrl,
+          method: curlMeta.method,
+          headers: curlMeta.headers,
+          payload: curlMeta.payload,
+        });
+        setSkipNextAnalysis(true);
+        setInput(newCurl);
+        setHasModifiedCurl(true);
+      } else {
+        const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
+        const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
+        setInput(nextUrl);
+        runAnalysis(nextUrl);
+        setHasModifiedUrl(true);
+      }
     },
-    [parsed, input, runAnalysis]
+    [parsed, input, runAnalysis, curlMeta]
   );
 
   const onReplaceQueryParam = useCallback(
     (index: number, newValue: string) => {
       if (!parsed) return;
       const built = replaceQueryParam(parsed, index, newValue);
-      const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
-      const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
-      setInput(nextUrl);
-      runAnalysis(nextUrl);
-      setHasModifiedUrl(true);
+      if (curlMeta) {
+        const fullUrl = `${built}`;
+        const newCurl = buildCurl({
+          url: fullUrl,
+          method: curlMeta.method,
+          headers: curlMeta.headers,
+          payload: curlMeta.payload,
+        });
+        setSkipNextAnalysis(true);
+        setInput(newCurl);
+        setHasModifiedCurl(true);
+      } else {
+        const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
+        const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
+        setInput(nextUrl);
+        runAnalysis(nextUrl);
+        setHasModifiedUrl(true);
+      }
     },
-    [parsed, input, runAnalysis]
+    [parsed, input, runAnalysis, curlMeta]
   );
 
   const handlePasteFromClipboard = useCallback(async () => {
@@ -210,10 +338,10 @@ export default function Home() {
                 autoFocus
               />
               <div className="absolute right-2 top-2 flex items-center gap-0.5">
-                {hasModifiedUrl && (
+                {(hasModifiedUrl || hasModifiedCurl) && (
                   <CopyButton
                     text={input.trim()}
-                    aria-label="Copy URL"
+                    aria-label="Copy URL or cURL"
                   />
                 )}
                 <button
@@ -293,6 +421,26 @@ export default function Home() {
                   </div>
                 )}
               </article>
+
+              {curlHeaderParams.length > 0 && (
+                <article className="rounded-lg border-2 border-border bg-card p-4">
+                  <h2 className="text-sm font-medium text-muted-foreground mb-3">Headers</h2>
+                  <div className="rounded-lg border-2 border-border overflow-hidden">
+                    <ParamTable
+                      params={curlHeaderParams}
+                      emptyMessage="No headers"
+                      onReplaceParam={onReplaceHeader}
+                    />
+                  </div>
+                </article>
+              )}
+
+              {curlPayload && (
+                <PayloadEditor
+                  payload={curlPayload}
+                  onReplace={onReplacePayload}
+                />
+              )}
 
               <UrlAccordion original={parsed.raw} decoded={parsed.decoded} />
 
