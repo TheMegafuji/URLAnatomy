@@ -17,9 +17,10 @@ interface PayloadEditorProps {
     raw: string;
   };
   onReplace: (newPayload: string) => void;
+  title?: string;
 }
 
-export function PayloadEditor({ payload, onReplace }: PayloadEditorProps) {
+export function PayloadEditor({ payload, onReplace, title = 'Payload' }: PayloadEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(payload.raw);
   const [originalFieldTypes, setOriginalFieldTypes] = useState<Map<number, AnalyzedParam['kind']>>(new Map());
@@ -187,7 +188,7 @@ export function PayloadEditor({ payload, onReplace }: PayloadEditorProps) {
   return (
     <article className="rounded-lg border-2 border-border bg-card p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-muted-foreground">Payload</h2>
+        <h2 className="text-sm font-medium text-muted-foreground">{title}</h2>
         {!isEditing && displayJson && (
           <div className="flex items-center gap-2">
             <CopyButton text={displayJson.formatted} aria-label="Copy formatted JSON" />

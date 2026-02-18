@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SeoContent } from '@/components/seo-content';
+import { LearnAd } from '@/components/ads/learn-ad';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://urlanatomy.com';
 
@@ -27,7 +28,9 @@ export default function LearnPage() {
         </div>
       </header>
       <main className="flex-1">
+        <LearnAd />
         <SeoContent />
+        <LearnAd />
       </main>
       <footer className="border-t border-border bg-muted/30 py-6 px-4">
         <div className="max-w-7xl mx-auto text-center text-sm text-muted-foreground">

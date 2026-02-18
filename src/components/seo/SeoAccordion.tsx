@@ -1,10 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-
-const ACCORDION_ITEMS = [
+const DOC_SECTIONS = [
   {
     id: 'intro',
     title: 'Introduction: Client-Side Privacy',
@@ -12,9 +8,9 @@ const ACCORDION_ITEMS = [
       <div className="space-y-3 text-sm text-foreground/90">
         <p>
           URL Anatomy is built on a <strong>client-side privacy</strong> model: all parsing, decoding,
-          and analysis run entirely in the user&apos;s browser. No URL, JWT, query string, or pasted
-          payload is transmitted to our servers or any third party. This design choice has direct
-          implications for security and compliance.
+          and analysis run entirely in your browser. No URL, cURL, JSON, JWT, or pasted payload
+          is sent to our servers or any third party. This design choice has direct implications
+          for security and compliance.
         </p>
         <p>
           Traditional server-side decoders (e.g. many &quot;JWT debugger&quot; or &quot;URL parser&quot; tools)
@@ -29,6 +25,26 @@ const ACCORDION_ITEMS = [
           containing tracking parameters, this means you can safely paste and inspect without
           trusting a remote service. The tool works offline after the initial load, reinforcing
           that no live server dependency is required for core functionality.
+        </p>
+      </div>
+    ),
+  },
+  {
+    id: 'input-types',
+    title: 'What you can paste: URL, cURL, or JSON',
+    content: (
+      <div className="space-y-3 text-sm text-foreground/90">
+        <p>
+          The input accepts three types of content. <strong>URLs</strong> are parsed into protocol,
+          host, path, and query; each parameter is decoded and analyzed (JWT, timestamps, UUIDs,
+          tracking params, etc.). <strong>cURL commands</strong> are recognized automatically:
+          we extract the URL, HTTP method, headers (e.g. Authorization decoded when possible), and
+          request body. <strong>Raw JSON</strong> (e.g. a request body) opens the same structured
+          view as a cURL payload: formatted JSON, detected fields, and per-field edit/copy/generate.
+        </p>
+        <p>
+          All processing stays in your browser. Use one input for URLs, API snippets, or JSON
+          payloads—no switching tools.
         </p>
       </div>
     ),
@@ -202,64 +218,42 @@ const ACCORDION_ITEMS = [
             application/x-www-form-urlencoded rules where applicable.
           </p>
         </div>
+        <div>
+          <h3 className="font-semibold text-foreground text-base mt-0">
+            Can I paste a cURL or JSON body?
+          </h3>
+          <p className="mt-1">
+            Yes. Paste a full cURL command and we parse URL, method, headers, and body; headers
+            and payload use the same detectors as query params (e.g. Authorization decoded).
+            Paste raw JSON and you get the same structured view: formatted display, detected
+            fields, nested expansion, and edit/copy/generate. All in-browser.
+          </p>
+        </div>
       </div>
     ),
   },
 ] as const;
 
 export function SeoAccordion() {
-  const [openId, setOpenId] = useState<string | null>(null);
-
   return (
-    <section className="max-w-3xl mx-auto pt-10 pb-6" aria-labelledby="seo-accordion-heading">
+    <section className="max-w-3xl mx-auto pt-10 pb-6 prose prose-neutral dark:prose-invert" aria-labelledby="seo-docs-heading">
       <h2
-        id="seo-accordion-heading"
-        className="text-sm font-medium text-muted-foreground mb-4"
+        id="seo-docs-heading"
+        className="text-sm font-medium text-muted-foreground mb-6 scroll-mt-4"
       >
         Technical Documentation & FAQ
       </h2>
-      <div className="space-y-2">
-        {ACCORDION_ITEMS.map((item) => {
-          const isOpen = openId === item.id;
-          return (
-            <article
-              key={item.id}
-              className="rounded-lg border-2 border-border bg-card overflow-visible"
-            >
-              <button
-                type="button"
-                onClick={() => setOpenId(isOpen ? null : item.id)}
-                className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors rounded-t-lg"
-                aria-expanded={isOpen}
-                aria-controls={`seo-accordion-content-${item.id}`}
-                id={`seo-accordion-trigger-${item.id}`}
-              >
-                {isOpen ? (
-                  <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
-                ) : (
-                  <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
-                )}
-                <span>{item.title}</span>
-              </button>
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    id={`seo-accordion-content-${item.id}`}
-                    role="region"
-                    aria-labelledby={`seo-accordion-trigger-${item.id}`}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden border-t-2 border-border"
-                  >
-                    <div className="p-4 pt-3">{item.content}</div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </article>
-          );
-        })}
+      <div className="space-y-8">
+        {DOC_SECTIONS.map((item) => (
+          <section
+            key={item.id}
+            id={item.id}
+            className="rounded-lg border-2 border-border bg-card p-4 pt-3"
+          >
+            <h3 className="text-base font-semibold text-foreground mt-0 mb-3">{item.title}</h3>
+            {item.content}
+          </section>
+        ))}
       </div>
     </section>
   );

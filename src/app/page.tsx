@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronRight, ClipboardPaste, Dices, Github, Shield } from 'lucide-react';
+import { BookOpen, ChevronDown, ChevronRight, ClipboardPaste, Dices, Github, Shield } from 'lucide-react';
 import { parseUrl, analyzeParsedUrl, analyzeParam, detectJson } from '@/lib/analyzers';
 import { parseCurl } from '@/lib/curl-parse';
 import { buildCurl } from '@/lib/curl-build';
@@ -17,7 +17,7 @@ import { UrlAccordion } from '@/components/url-accordion';
 import { CopyButton } from '@/components/ui/copy-button';
 import { ParamTable } from '@/components/param-table';
 import { SidebarAd } from '@/components/ads/sidebar-ad';
-import { BottomAd } from '@/components/ads/bottom-ad';
+// import { BottomAd } from '@/components/ads/bottom-ad'; // Re-enable after AdSense approval
 import { Footer } from '@/components/footer';
 import { SeoAccordion } from '@/components/seo/SeoAccordion';
 import { PayloadEditor } from '@/components/curl/payload-editor';
@@ -33,6 +33,7 @@ export default function Home() {
     payload: string | null;
     headers: { name: string; value: string }[];
   } | null>(null);
+  const [standaloneJson, setStandaloneJson] = useState<string | null>(null);
   const [pathExpanded, setPathExpanded] = useState(false);
   const analysis = useMemo(() => (parsed ? analyzeParsedUrl(parsed) : null), [parsed]);
 
@@ -58,11 +59,10 @@ export default function Home() {
     [curlMeta]
   );
 
-  const curlPayload = useMemo(() => {
-    if (!curlMeta?.payload) return null;
-    const json = detectJson(curlMeta.payload);
+  function buildPayloadFromRaw(raw: string) {
+    const json = detectJson(raw);
     if (!json || !json.valid) {
-      return { json: null, fields: [], raw: curlMeta.payload };
+      return { json: null, fields: [] as ReturnType<typeof analyzeParam>[], raw };
     }
     const formattedJson = {
       ...json,
@@ -72,34 +72,40 @@ export default function Home() {
     if (value != null && typeof value === 'object' && !Array.isArray(value)) {
       const entries = Object.entries(value as Record<string, unknown>);
       const fields = entries.map(([key, v]) =>
-        analyzeParam(
-          key,
-          typeof v === 'string' ? v : JSON.stringify(v)
-        )
+        analyzeParam(key, typeof v === 'string' ? v : JSON.stringify(v))
       );
-      return { json: formattedJson, fields, raw: curlMeta.payload };
+      return { json: formattedJson, fields, raw };
     }
     if (Array.isArray(value)) {
       const fields = (value as unknown[]).map((v, index) =>
-        analyzeParam(
-          String(index),
-          typeof v === 'string' ? v : JSON.stringify(v)
-        )
+        analyzeParam(String(index), typeof v === 'string' ? v : JSON.stringify(v))
       );
-      return { json: formattedJson, fields, raw: curlMeta.payload };
+      return { json: formattedJson, fields, raw };
     }
-    return { json: formattedJson, fields: [], raw: curlMeta.payload };
+    return { json: formattedJson, fields: [], raw };
+  }
+
+  const curlPayload = useMemo(() => {
+    if (!curlMeta?.payload) return null;
+    return buildPayloadFromRaw(curlMeta.payload);
   }, [curlMeta]);
+
+  const standaloneJsonPayload = useMemo(() => {
+    if (!standaloneJson) return null;
+    return buildPayloadFromRaw(standaloneJson);
+  }, [standaloneJson]);
 
   const runAnalysis = useCallback((value: string) => {
     const trimmed = value.trim();
     if (!trimmed) {
       setParsed(null);
       setCurlMeta(null);
+      setStandaloneJson(null);
       return;
     }
     const curlResult = parseCurl(trimmed);
     if (curlResult) {
+      setStandaloneJson(null);
       setCurlMeta({
         method: curlResult.method,
         payload: curlResult.payload,
@@ -116,9 +122,16 @@ export default function Home() {
       setCurlMeta(null);
       const urlResult = parseUrl(trimmed);
       if (urlResult) {
+        setStandaloneJson(null);
         setParsed(urlResult);
       } else {
         setParsed(null);
+        const json = detectJson(trimmed);
+        if (json?.valid) {
+          setStandaloneJson(trimmed);
+        } else {
+          setStandaloneJson(null);
+        }
       }
     }
   }, []);
@@ -141,6 +154,8 @@ export default function Home() {
       document.title = 'URL Anatomy — Decode & Analyze URLs';
   }, [analysis?.hasJwt]);
 
+  // Re-enable with BottomAd when AdSense approved
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used when BottomAd block is uncommented
   const hasResults = parsed && (analysis?.pathParams.length || analysis?.queryParams.length);
 
   const [hasModifiedUrl, setHasModifiedUrl] = useState(false);
@@ -181,6 +196,12 @@ export default function Home() {
     },
     [curlMeta, parsed]
   );
+
+  const onReplaceStandaloneJson = useCallback((newPayload: string) => {
+    setStandaloneJson(newPayload);
+    setSkipNextAnalysis(true);
+    setInput(newPayload);
+  }, []);
 
   const onReplacePathSegment = useCallback(
     (index: number, newValue: string) => {
@@ -294,7 +315,7 @@ export default function Home() {
               </p>
             </div>
             <p className="md:hidden text-sm text-muted-foreground mb-3 max-w-xl">
-              Paste a URL — we decode JWTs, timestamps & more in your browser.{' '}
+              Paste a <strong className="text-foreground/80">URL</strong>, <strong className="text-foreground/80">cURL</strong>, or <strong className="text-foreground/80">JSON</strong> — we decode and inspect in your browser.{' '}
               <Link
                 href="/learn"
                 className="text-foreground/80 hover:text-foreground underline underline-offset-2"
@@ -303,8 +324,7 @@ export default function Home() {
               </Link>
             </p>
             <p className="hidden md:block text-sm text-muted-foreground mb-3 max-w-xl">
-              Paste a URL and watch the magic — we decode JWTs, timestamps, UUIDs, and params
-              instantly. All in your browser, nothing leaves your device.{' '}
+              Paste a <strong className="text-foreground/80">URL</strong>, <strong className="text-foreground/80">cURL command</strong>, or <strong className="text-foreground/80">raw JSON</strong> — we decode JWTs, timestamps, headers, and payloads in your browser. Nothing leaves your device.{' '}
               <Link
                 href="/learn"
                 className="text-foreground/80 hover:text-foreground underline underline-offset-2"
@@ -313,12 +333,13 @@ export default function Home() {
               </Link>
             </p>
             <label htmlFor="url-input" className="sr-only">
-              Paste URL to analyze
+              Paste URL, cURL, or JSON to analyze
             </label>
             <div className="relative">
               <Textarea
                 id="url-input"
-                placeholder="Paste a URL here…"
+                title="URL, cURL command, or JSON — all analyzed in your browser"
+                placeholder="Paste a URL, cURL command, or JSON…"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onPaste={(e) => {
@@ -338,10 +359,10 @@ export default function Home() {
                 autoFocus
               />
               <div className="absolute right-2 top-2 flex items-center gap-0.5">
-                {(hasModifiedUrl || hasModifiedCurl) && (
+                {(hasModifiedUrl || hasModifiedCurl || standaloneJson) && (
                   <CopyButton
                     text={input.trim()}
-                    aria-label="Copy URL or cURL"
+                    aria-label="Copy URL, cURL, or JSON"
                   />
                 )}
                 <button
@@ -373,6 +394,35 @@ export default function Home() {
               </button>
             </div>
           </motion.section>
+
+          <section className="mb-8" aria-labelledby="featured-guides-heading">
+            <h2 id="featured-guides-heading" className="text-sm font-medium text-muted-foreground mb-3">
+              Explore our guides
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <Link
+                href="/learn"
+                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                How to decode JWT securely
+              </Link>
+              <Link
+                href="/learn"
+                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                Understanding URL tracking parameters
+              </Link>
+              <Link
+                href="/learn"
+                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                Timestamp converter & URL decoder
+              </Link>
+            </div>
+          </section>
 
           {parsed && (
             <motion.section initial={false} animate={{ opacity: 1 }} className="space-y-6">
@@ -505,11 +555,26 @@ export default function Home() {
                 </article>
               )}
 
-              {hasResults && (
+              {/* BottomAd disabled during AdSense approval to avoid conditional render issues */}
+              {/* {hasResults && (
                 <section className="pt-4">
                   <BottomAd />
                 </section>
-              )}
+              )} */}
+            </motion.section>
+          )}
+
+          {!parsed && standaloneJson && standaloneJsonPayload && (
+            <motion.section
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-6"
+            >
+              <PayloadEditor
+                payload={standaloneJsonPayload}
+                onReplace={onReplaceStandaloneJson}
+                title="JSON"
+              />
             </motion.section>
           )}
 

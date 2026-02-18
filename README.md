@@ -32,8 +32,25 @@
 - **Regex** — Value that looks like a regex; syntax check and short summary
 - **File path** — Unix or Windows path; path traversal warning when `..` is present
 - **URI** — Fallback for other values; pattern and length preserved when generating a new value
+- **Number** — Integer or float; metadata (integer/decimal digits, leading zeros, total length); generator produces values with the same shape
+- **Currency** — ISO 4217 codes (e.g. USD, BRL, EUR); country name shown; generator picks another valid currency
 
-Each detected type supports **Generate** (new value of the same type) and **Edit** (inline edit). Generated values are chosen so re-analysis keeps the same type.
+Each detected type supports **Generate** (new value of the same type) and **Edit** (inline edit). Generated values are chosen so re-analysis keeps the same type. Number is detected before boolean so values like `1` or `0` are treated as numbers when they match a numeric pattern.
+
+---
+
+## cURL support
+
+Paste a **cURL** command into the URL field to analyze it like a URL:
+
+- **Detection** — Recognizes `curl` (with common flags such as `-X`, `--request`, `-H`, `--header`, `-d`, `--data`, `--data-raw`, `--data-binary`, `-u`, `--user`, `-L`, `--location`, `--globoff`). Placeholders like `{{VAR}}` are preserved.
+- **Source** — Domain section shows **cURL** as source and the HTTP method (GET, POST, etc.).
+- **Headers** — Listed with the same detector/view system as query params (e.g. **Authorization**: Basic decoded, Bearer JWT decoded).
+- **Payload** — If the request has a body (e.g. `-d` / `--data`), it is shown as formatted JSON with syntax highlighting and correct indentation (including when copying). A **Detected fields** list is shown below. Nested objects (e.g. `bank` with `code`, `branch`, `account`) are **JSON** items: badge + short explanation (“Structured data — expand to see nested fields”) and an expand control to see or edit nested fields.
+- **Edit / Copy / Generate** — Headers and payload fields can be edited, copied, or regenerated per field; **Generate all** regenerates every field recursively (including nested objects). Changes are written back into the cURL command; internal edits do not trigger a full re-analysis.
+- **Parser** — cURL is parsed with a small state-machine tokenizer (no heavy regex) so pasting long multi-line commands stays fast and responsive.
+
+**Paste raw JSON** — If the input is not a URL and not a cURL command but is valid JSON (e.g. `{"amount": 10, "currency": "USD"}`), the app shows a **JSON** section with the same structure as the payload editor: formatted view, detected fields, nested expansion, edit/copy/generate per field, and **Generate all**. Edits update the textarea so you can copy the result or keep editing.
 
 ---
 
