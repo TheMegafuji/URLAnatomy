@@ -35,6 +35,9 @@ import { SlugView } from './slug-view';
 import { CronView } from './cron-view';
 import { RegexView } from './regex-view';
 import { FilePathView } from './file-path-view';
+import { AuthorizationView } from './authorization-view';
+import { NumberView } from './number-view';
+import { CurrencyView } from './currency-view';
 
 type ViewRenderer = (param: AnalyzedParam) => React.ReactNode;
 
@@ -72,6 +75,9 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
   cron: (p) => <CronView meta={p.meta} />,
   regex: (p) => <RegexView meta={p.meta} />,
   file_path: (p) => <FilePathView meta={p.meta} />,
+  authorization: (p) => <AuthorizationView meta={p.meta} />,
+  number: (p) => <NumberView meta={p.meta} />,
+  currency: (p) => <CurrencyView meta={p.meta} />,
   uri: (p) => <UriView decoded={p.decoded} />,
 };
 

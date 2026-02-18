@@ -249,14 +249,29 @@ function looksLikeTimestamp(value: string): boolean {
   return false;
 }
 
+function looksLikeCodeOrId(value: string): boolean {
+  const normalized = value.replace(/[\s.-]/g, '');
+  if (normalized.length > 15) return true;
+  const parts = value.split(/[.\s-]/).filter(Boolean);
+  if (parts.length > 4) return true;
+  const hasLongNumericParts = parts.some((p) => p.length > 6 && /^\d+$/.test(p));
+  if (hasLongNumericParts && parts.length >= 3) return true;
+  const digitRatio = normalized.replace(/\D/g, '').length / normalized.length;
+  if (digitRatio > 0.9 && normalized.length > 10) return true;
+  return false;
+}
+
 export function detectPhone(value: string): PhoneResult | null {
   const v = value.trim();
   if (!v || !DIGITS_ONLY.test(v) || v.replace(/\D/g, '').length < 7) return null;
   if (looksLikeTimestamp(v)) return null;
+  if (looksLikeCodeOrId(v)) return null;
   if (!E164_REGEX.test(v)) return null;
   const normalized = normalizePhone(v);
+  if (normalized.length < 7 || normalized.length > 15) return null;
   const withPlus = normalized.startsWith('+') ? normalized : '+' + normalized;
   const countryCode = getCountryCode(withPlus);
+  if (!countryCode && !normalized.startsWith('+')) return null;
   return {
     type: 'phone',
     countryCode,

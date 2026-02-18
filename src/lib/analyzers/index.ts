@@ -31,6 +31,9 @@ import { detectSlug } from './slug';
 import { detectCron } from './cron';
 import { detectRegex } from './regex';
 import { detectFilePath } from './file-path';
+import { detectAuthorization } from './authorization';
+import { detectNumber } from './number';
+import { detectCurrency } from './currency';
 import type { ParsedUrl } from './url-parse';
 
 export type ParamKind =
@@ -58,6 +61,8 @@ export type ParamKind =
   | 'email'
   | 'phone'
   | 'locale'
+  | 'currency'
+  | 'number'
   | 'semver'
   | 'domain'
   | 'mime'
@@ -67,6 +72,7 @@ export type ParamKind =
   | 'cron'
   | 'regex'
   | 'file_path'
+  | 'authorization'
   | 'uri';
 
 export interface AnalyzedParam {
@@ -87,6 +93,8 @@ function decodeUri(value: string): string {
 
 export function analyzeParam(key: string, value: string): AnalyzedParam {
   const decoded = decodeUri(value);
+  const auth = detectAuthorization(key, decoded);
+  if (auth) return { key, value, decoded, kind: 'authorization', meta: auth };
   const xss = detectXss(decoded);
   if (xss) return { key, value, decoded, kind: 'xss', meta: xss };
   const sqli = detectSqli(decoded);
@@ -113,14 +121,18 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (pagination) return { key, value, decoded, kind: 'pagination', meta: pagination };
   const sortResult = detectSort(key, decoded);
   if (sortResult) return { key, value, decoded, kind: 'sort', meta: sortResult };
-  const booleanVal = detectBoolean(decoded);
-  if (booleanVal) return { key, value, decoded, kind: 'boolean', meta: booleanVal };
   const network = detectNetwork(decoded);
   if (network) return { key, value, decoded, kind: 'network', meta: network };
   const ts = detectTimestamp(decoded);
   if (ts) return { key, value, decoded, kind: 'timestamp', meta: ts };
   const email = detectEmail(decoded);
   if (email) return { key, value, decoded, kind: 'email', meta: email };
+  const number = detectNumber(decoded);
+  if (number) return { key, value, decoded, kind: 'number', meta: number };
+  const booleanVal = detectBoolean(decoded);
+  if (booleanVal) return { key, value, decoded, kind: 'boolean', meta: booleanVal };
+  const currency = detectCurrency(decoded);
+  if (currency) return { key, value, decoded, kind: 'currency', meta: currency };
   const phone = detectPhone(decoded);
   if (phone) return { key, value, decoded, kind: 'phone', meta: phone };
   const locale = detectLocale(decoded);
@@ -204,6 +216,10 @@ export { detectEmail } from './email';
 export type { EmailResult } from './email';
 export { detectPhone } from './phone';
 export type { PhoneResult } from './phone';
+export { detectNumber } from './number';
+export type { NumberResult } from './number';
+export { detectCurrency } from './currency';
+export type { CurrencyResult } from './currency';
 export { detectLocale } from './locale';
 export type { LocaleResult } from './locale';
 export { detectSemver } from './semver';
@@ -236,3 +252,5 @@ export { detectRegex } from './regex';
 export type { RegexResult } from './regex';
 export { detectFilePath } from './file-path';
 export type { FilePathResult } from './file-path';
+export { detectAuthorization } from './authorization';
+export type { AuthorizationResult } from './authorization';

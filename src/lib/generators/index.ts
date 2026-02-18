@@ -12,9 +12,30 @@ import type { PhoneResult } from '@/lib/analyzers/phone';
 import type { LocaleResult } from '@/lib/analyzers/locale';
 import type { Base64Result } from '@/lib/analyzers/base64';
 import type { JsonResult } from '@/lib/analyzers/json';
+import type { NumberResult } from '@/lib/analyzers/number';
+import type { CurrencyResult } from '@/lib/analyzers/currency';
 import { detectJson } from '@/lib/analyzers/json';
 import { detectBase64 } from '@/lib/analyzers/base64';
 import { detectJwt } from '@/lib/analyzers/jwt';
+
+const CURRENCY_CODES = [
+  'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN',
+  'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL',
+  'BSD', 'BTN', 'BWP', 'BYN', 'BZD', 'CAD', 'CDF', 'CHF', 'CLP', 'CNY',
+  'COP', 'CRC', 'CUP', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD', 'EGP',
+  'ERN', 'ETB', 'EUR', 'FJD', 'FKP', 'GBP', 'GEL', 'GHS', 'GIP', 'GMD',
+  'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HRK', 'HTG', 'HUF', 'IDR', 'ILS',
+  'INR', 'IQD', 'IRR', 'ISK', 'JMD', 'JOD', 'JPY', 'KES', 'KGS', 'KHR',
+  'KMF', 'KPW', 'KRW', 'KWD', 'KYD', 'KZT', 'LAK', 'LBP', 'LKR', 'LRD',
+  'LSL', 'LYD', 'MAD', 'MDL', 'MGA', 'MKD', 'MMK', 'MNT', 'MOP', 'MRU',
+  'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'MZN', 'NAD', 'NGN', 'NIO', 'NOK',
+  'NPR', 'NZD', 'OMR', 'PAB', 'PEN', 'PGK', 'PHP', 'PKR', 'PLN', 'PYG',
+  'QAR', 'RON', 'RSD', 'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SDG', 'SEK',
+  'SGD', 'SHP', 'SLE', 'SLL', 'SOS', 'SRD', 'SSP', 'STN', 'SYP', 'SZL',
+  'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD', 'TVD', 'TWD', 'TZS',
+  'UAH', 'UGX', 'USD', 'UYU', 'UZS', 'VES', 'VND', 'VUV', 'WST', 'XAF',
+  'XCD', 'XDR', 'XOF', 'XPF', 'YER', 'ZAR', 'ZMW', 'ZWL',
+];
 
 function hex(len: number): string {
   const out: string[] = [];
@@ -154,9 +175,6 @@ function genGeo(): string {
 }
 
 function ensureUniqueOutput(v: unknown): unknown {
-  if (typeof v === 'object' && v !== null && !Array.isArray(v))
-    return { ...(v as Record<string, unknown>), _g: Date.now() };
-  if (Array.isArray(v)) return [...v, Date.now()];
   return v;
 }
 
@@ -257,6 +275,36 @@ function genSemver(meta: SemverResult | null): string {
   if (meta?.prerelease || Math.random() < 0.2) out += '-' + alnum(6).toLowerCase();
   if (meta?.build || Math.random() < 0.15) out += '+' + alnum(6).toLowerCase();
   return out;
+}
+
+function genNumber(meta: NumberResult | null): string {
+  if (!meta) {
+    return String(randInt(1000, 9999));
+  }
+  const { numericType, integerDigits, decimalDigits, leadingZeros } = meta;
+  if (numericType === 'integer') {
+    const min = leadingZeros > 0 ? 0 : Math.pow(10, integerDigits - 1);
+    const max = Math.pow(10, integerDigits) - 1;
+    const num = randInt(min, max);
+    return String(num).padStart(integerDigits, '0');
+  } else {
+    const min = Math.pow(10, integerDigits - 1);
+    const max = Math.pow(10, integerDigits) - 1;
+    const intPart = randInt(min, max);
+    const decPart = randInt(0, Math.pow(10, decimalDigits) - 1)
+      .toString()
+      .padStart(decimalDigits, '0');
+    return `${intPart}.${decPart}`;
+  }
+}
+
+function genCurrency(meta: CurrencyResult | null): string {
+  const allCurrencies = Array.from(CURRENCY_CODES);
+  if (meta?.code) {
+    const filtered = allCurrencies.filter((c) => c !== meta.code);
+    return filtered.length > 0 ? rand(filtered) : rand(allCurrencies);
+  }
+  return rand(allCurrencies);
 }
 
 function genMarketing(): string {
@@ -461,6 +509,18 @@ function genFilePath(param: AnalyzedParam): string {
   return style === 'windows' ? `C:\\${segs.join('\\')}` : `/${segs.join('/')}`;
 }
 
+function genAuthorization(param: AnalyzedParam): string {
+  const meta = param.meta as { scheme?: string } | null;
+  const scheme = meta?.scheme ?? 'Basic';
+  if (scheme === 'Bearer') {
+    return `Bearer ${genJwt(null)}`;
+  }
+  const username = alnum(4 + randInt(0, 8));
+  const password = alnum(8 + randInt(0, 12));
+  const credentials = btoa(`${username}:${password}`);
+  return `Basic ${credentials}`;
+}
+
 const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
   timestamp: (p) => genTimestamp(p.meta as TimestampResult | null),
   uuid: (p) => genUuid(p.meta as UuidResult | null),
@@ -476,6 +536,8 @@ const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
   email: genEmail,
   phone: (p) => genPhone(p.meta as PhoneResult | null),
   locale: (p) => genLocale(p.meta as LocaleResult | null),
+  currency: (p) => genCurrency(p.meta as CurrencyResult | null),
+  number: (p) => genNumber(p.meta as NumberResult | null),
   semver: (p) => genSemver(p.meta as SemverResult | null),
   marketing: genMarketing,
   'user-agent': genUserAgent,
@@ -496,6 +558,7 @@ const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
   cron: genCron,
   regex: genRegex,
   file_path: genFilePath,
+  authorization: genAuthorization,
 };
 
 export function generateValue(param: AnalyzedParam): string {
@@ -544,6 +607,8 @@ export const PARAM_KINDS: ParamKind[] = [
   'email',
   'phone',
   'locale',
+  'currency',
+  'number',
   'semver',
   'domain',
   'mime',

@@ -16,8 +16,19 @@ export function parseUrl(input: string): ParsedUrl | null {
   let toParse = raw;
   if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(toParse)) toParse = 'https://' + toParse;
   try {
-    const url = new URL(toParse);
-    const decoded = decodeURIComponent(url.href);
+    const placeholderMap: { placeholder: string; original: string }[] = [];
+    let placeholderIndex = 0;
+    const testUrl = toParse.replace(/\{\{[^}]+\}\}/g, (match) => {
+      const placeholder = `placeholder${placeholderIndex++}`;
+      placeholderMap.push({ placeholder, original: match });
+      return placeholder;
+    });
+    const url = new URL(testUrl);
+    let finalRaw = url.href;
+    placeholderMap.forEach(({ placeholder, original }) => {
+      finalRaw = finalRaw.replace(placeholder, original);
+    });
+    const decoded = decodeURIComponent(finalRaw);
     const pathSegments = url.pathname
       .replace(/^\/+|\/+$/g, '')
       .split('/')
@@ -25,7 +36,7 @@ export function parseUrl(input: string): ParsedUrl | null {
     const queryParams: { key: string; value: string }[] = [];
     url.searchParams.forEach((value, key) => queryParams.push({ key, value }));
     return {
-      raw: url.href,
+      raw: finalRaw,
       decoded,
       protocol: url.protocol.replace(':', ''),
       host: url.host,

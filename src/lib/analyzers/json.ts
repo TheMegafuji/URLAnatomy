@@ -11,10 +11,11 @@ export function detectJson(value: string): JsonResult | null {
   if (!v || (v[0] !== '{' && v[0] !== '[')) return null;
   try {
     const parsed = JSON.parse(v);
+    const formatted = JSON.stringify(parsed, null, 2);
     return {
       type: 'json',
       parsed,
-      formatted: JSON.stringify(parsed, null, 2),
+      formatted,
       raw: v,
       valid: true,
     };
