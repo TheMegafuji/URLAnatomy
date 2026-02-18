@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "clean": "node -e \"const fs=require('fs');['.next','out','node_modules/.cache','.turbo'].forEach(d=>{try{fs.rmSync(d,{recursive:true,force:true})}catch(e){}})\"",
+    "clean:win": "if exist .next rmdir /s /q .next && if exist out rmdir /s /q out && if exist node_modules\\.cache rmdir /s /q node_modules\\.cache && if exist .turbo rmdir /s /q .turbo",
+    "type-check": "tsc --noEmit",
+    "postinstall": "npm run clean || true"
   },
   "dependencies": {
     "@next/third-parties": "^16.1.6",
