@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronRight, ClipboardPaste, Dices, Github, Shield } from 'lucide-react';
 import { parseUrl, analyzeParsedUrl } from '@/lib/analyzers';
+import { parseCurl } from '@/lib/curl-parse';
 import { debounce, extractFirstUrl } from '@/lib/utils';
 import { generateExampleUrl } from '@/lib/example-url';
 import { replacePathSegment, replaceQueryParam } from '@/lib/url-build';
@@ -25,6 +26,7 @@ const DEBOUNCE_MS = 300;
 export default function Home() {
   const [input, setInput] = useState('');
   const [parsed, setParsed] = useState<ReturnType<typeof parseUrl>>(null);
+  const [curlMeta, setCurlMeta] = useState<{ method: string } | null>(null);
   const [pathExpanded, setPathExpanded] = useState(false);
   const analysis = useMemo(() => (parsed ? analyzeParsedUrl(parsed) : null), [parsed]);
 
@@ -48,10 +50,17 @@ export default function Home() {
     const trimmed = value.trim();
     if (!trimmed) {
       setParsed(null);
+      setCurlMeta(null);
       return;
     }
-    const result = parseUrl(trimmed);
-    setParsed(result);
+    const curlResult = parseCurl(trimmed);
+    if (curlResult) {
+      setCurlMeta({ method: curlResult.method });
+      setParsed(parseUrl(curlResult.url));
+    } else {
+      setCurlMeta(null);
+      setParsed(parseUrl(trimmed));
+    }
   }, []);
 
   const debouncedRun = useMemo(() => debounce(runAnalysis, DEBOUNCE_MS), [runAnalysis]);
@@ -100,8 +109,13 @@ export default function Home() {
   const handlePasteFromClipboard = useCallback(async () => {
     try {
       const text = await navigator.clipboard.readText();
-      const url = extractFirstUrl(text);
-      setInput(url ?? text.trim());
+      const trimmed = text.trim();
+      if (parseCurl(trimmed)) {
+        setInput(trimmed);
+      } else {
+        const url = extractFirstUrl(text);
+        setInput(url ?? trimmed);
+      }
     } catch {
       setInput('');
     }
@@ -180,11 +194,16 @@ export default function Home() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onPaste={(e) => {
-                  const pasted = e.clipboardData?.getData('text') ?? '';
-                  const url = extractFirstUrl(pasted);
-                  if (url) {
+                  const pasted = (e.clipboardData?.getData('text') ?? '').trim();
+                  if (parseCurl(pasted)) {
                     e.preventDefault();
-                    setInput(url);
+                    setInput(pasted);
+                  } else {
+                    const url = extractFirstUrl(pasted);
+                    if (url) {
+                      e.preventDefault();
+                      setInput(url);
+                    }
                   }
                 }}
                 className="min-h-[180px] resize-y font-mono text-base border-2 border-input pr-11"
@@ -232,6 +251,18 @@ export default function Home() {
               <article className="rounded-lg border-2 border-border bg-card p-4">
                 <h2 className="text-sm font-medium text-muted-foreground mb-3">Base URL</h2>
                 <dl className="grid gap-3 font-mono text-sm sm:grid-cols-2 gap-x-8 mb-4">
+                  {curlMeta && (
+                    <>
+                      <div>
+                        <dt className="text-muted-foreground">Source</dt>
+                        <dd className="mt-0.5">cURL</dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Method</dt>
+                        <dd className="mt-0.5">{curlMeta.method}</dd>
+                      </div>
+                    </>
+                  )}
                   <div>
                     <dt className="text-muted-foreground">Protocol</dt>
                     <dd className="mt-0.5">{parsed.protocol}</dd>
