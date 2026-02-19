@@ -37,5 +37,13 @@ export const BADGE_LABEL: Record<AnalyzedParam['kind'], string> = {
   regex: 'Regex',
   file_path: 'File Path',
   authorization: 'Authorization',
+  request_id: 'Request ID',
+  webhook_signature: 'Webhook signature',
+  api_version: 'API version',
+  feature_flag: 'Feature flag',
+  csrf: 'CSRF token',
+  alt_id: 'Alt ID',
+  mac: 'MAC address',
+  arn: 'ARN',
   uri: 'URI',
 };

@@ -128,9 +128,19 @@ function ParamTableRow({
         <code className="text-xs text-muted-foreground">{param.key || '—'}</code>
       </td>
       <td className="py-2.5 pr-3 align-top">
-        <Badge variant={kindToUse} className="shrink-0">
-          {BADGE_LABEL[kindToUse]}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-1">
+          <Badge variant={kindToUse} className="shrink-0">
+            {BADGE_LABEL[kindToUse]}
+          </Badge>
+          {param.encodingIssue && (
+            <span
+              className="rounded px-1.5 py-0.5 text-[10px] font-medium bg-amber-500/20 text-amber-600 dark:text-amber-400"
+              title={param.encodingIssue.detail}
+            >
+              Encoding
+            </span>
+          )}
+        </div>
       </td>
       <td className="py-2.5 pr-3 align-top max-w-[200px]">
         {isEditing ? (

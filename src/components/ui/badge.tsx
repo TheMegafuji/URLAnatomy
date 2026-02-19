@@ -42,6 +42,14 @@ const variants: Record<BadgeVariant, string> = {
   regex: 'border-transparent bg-purple-500/20 text-purple-400',
   file_path: 'border-transparent bg-zinc-500/20 text-zinc-400',
   authorization: 'border-transparent bg-blue-500/20 text-blue-400',
+  request_id: 'border-transparent bg-sky-500/20 text-sky-400',
+  webhook_signature: 'border-transparent bg-amber-500/20 text-amber-400',
+  api_version: 'border-transparent bg-lime-500/20 text-lime-400',
+  feature_flag: 'border-transparent bg-indigo-500/20 text-indigo-400',
+  csrf: 'border-transparent bg-orange-500/20 text-orange-400',
+  alt_id: 'border-transparent bg-cyan-500/20 text-cyan-400',
+  mac: 'border-transparent bg-teal-500/20 text-teal-400',
+  arn: 'border-transparent bg-amber-500/20 text-amber-400',
   uri: 'border-transparent bg-muted text-muted-foreground',
 };
 

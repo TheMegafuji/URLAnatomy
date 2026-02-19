@@ -34,6 +34,15 @@ import { detectFilePath } from './file-path';
 import { detectAuthorization } from './authorization';
 import { detectNumber } from './number';
 import { detectCurrency } from './currency';
+import { detectRequestId } from './request-id';
+import { detectWebhookSignature } from './webhook-signature';
+import { detectApiVersion } from './api-version';
+import { detectFeatureFlag } from './feature-flag';
+import { detectCsrf } from './csrf';
+import { detectAltId } from './alt-id';
+import { detectMac } from './mac';
+import { detectArn } from './arn';
+import { detectEncodingIssue } from './encoding-issue';
 import type { ParsedUrl } from './url-parse';
 
 export type ParamKind =
@@ -73,7 +82,20 @@ export type ParamKind =
   | 'regex'
   | 'file_path'
   | 'authorization'
+  | 'request_id'
+  | 'webhook_signature'
+  | 'api_version'
+  | 'feature_flag'
+  | 'csrf'
+  | 'alt_id'
+  | 'mac'
+  | 'arn'
   | 'uri';
+
+export interface EncodingIssueResult {
+  type: string;
+  detail: string;
+}
 
 export interface AnalyzedParam {
   key: string;
@@ -81,6 +103,7 @@ export interface AnalyzedParam {
   decoded: string;
   kind: ParamKind;
   meta: unknown;
+  encodingIssue?: EncodingIssueResult;
 }
 
 function decodeUri(value: string): string {
@@ -91,81 +114,106 @@ function decodeUri(value: string): string {
   }
 }
 
+function withEncodingIssue(
+  param: Omit<AnalyzedParam, 'encodingIssue'>,
+  value: string,
+  decoded: string
+): AnalyzedParam {
+  const encodingIssue = detectEncodingIssue(value, decoded) ?? undefined;
+  return { ...param, encodingIssue };
+}
+
 export function analyzeParam(key: string, value: string): AnalyzedParam {
   const decoded = decodeUri(value);
   const auth = detectAuthorization(key, decoded);
-  if (auth) return { key, value, decoded, kind: 'authorization', meta: auth };
+  if (auth) return withEncodingIssue({ key, value, decoded, kind: 'authorization', meta: auth }, value, decoded);
+  const requestId = detectRequestId(key);
+  if (requestId) return withEncodingIssue({ key, value, decoded, kind: 'request_id', meta: requestId }, value, decoded);
+  const webhookSig = detectWebhookSignature(key);
+  if (webhookSig) return withEncodingIssue({ key, value, decoded, kind: 'webhook_signature', meta: webhookSig }, value, decoded);
+  const apiVersion = detectApiVersion(key, decoded);
+  if (apiVersion) return withEncodingIssue({ key, value, decoded, kind: 'api_version', meta: apiVersion }, value, decoded);
   const xss = detectXss(decoded);
-  if (xss) return { key, value, decoded, kind: 'xss', meta: xss };
+  if (xss) return withEncodingIssue({ key, value, decoded, kind: 'xss', meta: xss }, value, decoded);
   const sqli = detectSqli(decoded);
-  if (sqli) return { key, value, decoded, kind: 'sqli', meta: sqli };
+  if (sqli) return withEncodingIssue({ key, value, decoded, kind: 'sqli', meta: sqli }, value, decoded);
   const tokenPrefix = detectTokenPrefix(decoded);
-  if (tokenPrefix) return { key, value, decoded, kind: 'token_prefix', meta: tokenPrefix };
+  if (tokenPrefix) return withEncodingIssue({ key, value, decoded, kind: 'token_prefix', meta: tokenPrefix }, value, decoded);
   const credential = detectCredential(decoded);
-  if (credential) return { key, value, decoded, kind: 'credential', meta: credential };
+  if (credential) return withEncodingIssue({ key, value, decoded, kind: 'credential', meta: credential }, value, decoded);
   const dbConnection = detectDbConnection(decoded);
-  if (dbConnection) return { key, value, decoded, kind: 'db_connection', meta: dbConnection };
+  if (dbConnection) return withEncodingIssue({ key, value, decoded, kind: 'db_connection', meta: dbConnection }, value, decoded);
   const crypto = detectCrypto(decoded);
-  if (crypto) return { key, value, decoded, kind: 'crypto', meta: crypto };
+  if (crypto) return withEncodingIssue({ key, value, decoded, kind: 'crypto', meta: crypto }, value, decoded);
   const jwt = detectJwt(decoded);
-  if (jwt) return { key, value, decoded, kind: 'jwt', meta: jwt };
+  if (jwt) return withEncodingIssue({ key, value, decoded, kind: 'jwt', meta: jwt }, value, decoded);
   const json = detectJson(decoded);
-  if (json) return { key, value, decoded, kind: 'json', meta: json };
+  if (json) return withEncodingIssue({ key, value, decoded, kind: 'json', meta: json }, value, decoded);
   const ua = detectUserAgent(decoded);
-  if (ua) return { key, value, decoded, kind: 'user-agent', meta: ua };
+  if (ua) return withEncodingIssue({ key, value, decoded, kind: 'user-agent', meta: ua }, value, decoded);
   const uuid = detectUuid(decoded);
-  if (uuid) return { key, value, decoded, kind: 'uuid', meta: uuid };
+  if (uuid) return withEncodingIssue({ key, value, decoded, kind: 'uuid', meta: uuid }, value, decoded);
+  const altId = detectAltId(decoded);
+  if (altId) return withEncodingIssue({ key, value, decoded, kind: 'alt_id', meta: altId }, value, decoded);
   const marketing = detectMarketing(key);
-  if (marketing) return { key, value, decoded, kind: 'marketing', meta: marketing };
+  if (marketing) return withEncodingIssue({ key, value, decoded, kind: 'marketing', meta: marketing }, value, decoded);
+  const featureFlag = detectFeatureFlag(key);
+  if (featureFlag) return withEncodingIssue({ key, value, decoded, kind: 'feature_flag', meta: featureFlag }, value, decoded);
+  const csrf = detectCsrf(key);
+  if (csrf) return withEncodingIssue({ key, value, decoded, kind: 'csrf', meta: csrf }, value, decoded);
   const pagination = detectPagination(key, decoded);
-  if (pagination) return { key, value, decoded, kind: 'pagination', meta: pagination };
+  if (pagination) return withEncodingIssue({ key, value, decoded, kind: 'pagination', meta: pagination }, value, decoded);
   const sortResult = detectSort(key, decoded);
-  if (sortResult) return { key, value, decoded, kind: 'sort', meta: sortResult };
+  if (sortResult) return withEncodingIssue({ key, value, decoded, kind: 'sort', meta: sortResult }, value, decoded);
   const network = detectNetwork(decoded);
-  if (network) return { key, value, decoded, kind: 'network', meta: network };
+  if (network) return withEncodingIssue({ key, value, decoded, kind: 'network', meta: network }, value, decoded);
+  const mac = detectMac(decoded);
+  if (mac) return withEncodingIssue({ key, value, decoded, kind: 'mac', meta: mac }, value, decoded);
   const ts = detectTimestamp(decoded);
-  if (ts) return { key, value, decoded, kind: 'timestamp', meta: ts };
+  if (ts) return withEncodingIssue({ key, value, decoded, kind: 'timestamp', meta: ts }, value, decoded);
   const email = detectEmail(decoded);
-  if (email) return { key, value, decoded, kind: 'email', meta: email };
+  if (email) return withEncodingIssue({ key, value, decoded, kind: 'email', meta: email }, value, decoded);
   const number = detectNumber(decoded);
-  if (number) return { key, value, decoded, kind: 'number', meta: number };
+  if (number) return withEncodingIssue({ key, value, decoded, kind: 'number', meta: number }, value, decoded);
   const booleanVal = detectBoolean(decoded);
-  if (booleanVal) return { key, value, decoded, kind: 'boolean', meta: booleanVal };
+  if (booleanVal) return withEncodingIssue({ key, value, decoded, kind: 'boolean', meta: booleanVal }, value, decoded);
   const currency = detectCurrency(decoded);
-  if (currency) return { key, value, decoded, kind: 'currency', meta: currency };
+  if (currency) return withEncodingIssue({ key, value, decoded, kind: 'currency', meta: currency }, value, decoded);
   const phone = detectPhone(decoded);
-  if (phone) return { key, value, decoded, kind: 'phone', meta: phone };
+  if (phone) return withEncodingIssue({ key, value, decoded, kind: 'phone', meta: phone }, value, decoded);
   const locale = detectLocale(decoded);
-  if (locale) return { key, value, decoded, kind: 'locale', meta: locale };
+  if (locale) return withEncodingIssue({ key, value, decoded, kind: 'locale', meta: locale }, value, decoded);
   const semver = detectSemver(decoded);
-  if (semver) return { key, value, decoded, kind: 'semver', meta: semver };
+  if (semver) return withEncodingIssue({ key, value, decoded, kind: 'semver', meta: semver }, value, decoded);
   const color = detectColor(decoded);
-  if (color) return { key, value, decoded, kind: 'color', meta: color };
+  if (color) return withEncodingIssue({ key, value, decoded, kind: 'color', meta: color }, value, decoded);
   const geo = detectGeo(decoded);
-  if (geo) return { key, value, decoded, kind: 'geo', meta: geo };
+  if (geo) return withEncodingIssue({ key, value, decoded, kind: 'geo', meta: geo }, value, decoded);
   const mime = detectMime(decoded);
-  if (mime) return { key, value, decoded, kind: 'mime', meta: mime };
+  if (mime) return withEncodingIssue({ key, value, decoded, kind: 'mime', meta: mime }, value, decoded);
   const filePath = detectFilePath(decoded);
-  if (filePath) return { key, value, decoded, kind: 'file_path', meta: filePath };
+  if (filePath) return withEncodingIssue({ key, value, decoded, kind: 'file_path', meta: filePath }, value, decoded);
   const b64 = detectBase64(decoded);
-  if (b64) return { key, value, decoded, kind: 'base64', meta: b64 };
+  if (b64) return withEncodingIssue({ key, value, decoded, kind: 'base64', meta: b64 }, value, decoded);
   const hash = detectHash(decoded);
-  if (hash) return { key, value, decoded, kind: 'hash', meta: hash };
+  if (hash) return withEncodingIssue({ key, value, decoded, kind: 'hash', meta: hash }, value, decoded);
   const hexVal = detectHex(decoded);
-  if (hexVal) return { key, value, decoded, kind: 'hex', meta: hexVal };
+  if (hexVal) return withEncodingIssue({ key, value, decoded, kind: 'hex', meta: hexVal }, value, decoded);
   const domain = detectDomain(decoded);
-  if (domain) return { key, value, decoded, kind: 'domain', meta: domain };
+  if (domain) return withEncodingIssue({ key, value, decoded, kind: 'domain', meta: domain }, value, decoded);
+  const arn = detectArn(decoded);
+  if (arn) return withEncodingIssue({ key, value, decoded, kind: 'arn', meta: arn }, value, decoded);
   const duration = detectDuration(decoded);
-  if (duration) return { key, value, decoded, kind: 'duration', meta: duration };
+  if (duration) return withEncodingIssue({ key, value, decoded, kind: 'duration', meta: duration }, value, decoded);
   const slug = detectSlug(decoded);
-  if (slug) return { key, value, decoded, kind: 'slug', meta: slug };
+  if (slug) return withEncodingIssue({ key, value, decoded, kind: 'slug', meta: slug }, value, decoded);
   const cron = detectCron(decoded);
-  if (cron) return { key, value, decoded, kind: 'cron', meta: cron };
+  if (cron) return withEncodingIssue({ key, value, decoded, kind: 'cron', meta: cron }, value, decoded);
   const regexVal = detectRegex(decoded);
-  if (regexVal) return { key, value, decoded, kind: 'regex', meta: regexVal };
+  if (regexVal) return withEncodingIssue({ key, value, decoded, kind: 'regex', meta: regexVal }, value, decoded);
   const oauth = detectOauth(key, decoded);
-  if (oauth) return { key, value, decoded, kind: 'oauth', meta: oauth };
-  return { key, value, decoded, kind: 'uri', meta: null };
+  if (oauth) return withEncodingIssue({ key, value, decoded, kind: 'oauth', meta: oauth }, value, decoded);
+  return withEncodingIssue({ key, value, decoded, kind: 'uri', meta: null }, value, decoded);
 }
 
 export function analyzeParsedUrl(parsed: ParsedUrl): {
@@ -254,3 +302,21 @@ export { detectFilePath } from './file-path';
 export type { FilePathResult } from './file-path';
 export { detectAuthorization } from './authorization';
 export type { AuthorizationResult } from './authorization';
+export { detectRequestId } from './request-id';
+export type { RequestIdResult } from './request-id';
+export { detectWebhookSignature } from './webhook-signature';
+export type { WebhookSignatureResult } from './webhook-signature';
+export { detectApiVersion } from './api-version';
+export type { ApiVersionResult } from './api-version';
+export { detectFeatureFlag } from './feature-flag';
+export type { FeatureFlagResult } from './feature-flag';
+export { detectCsrf } from './csrf';
+export type { CsrfResult } from './csrf';
+export { detectAltId } from './alt-id';
+export type { AltIdResult } from './alt-id';
+export { detectMac } from './mac';
+export type { MacResult } from './mac';
+export { detectArn } from './arn';
+export type { ArnResult } from './arn';
+export { detectEncodingIssue } from './encoding-issue';
+export type { EncodingIssueResult as EncodingIssueDetectResult } from './encoding-issue';

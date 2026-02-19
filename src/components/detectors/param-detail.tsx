@@ -38,6 +38,14 @@ import { FilePathView } from './file-path-view';
 import { AuthorizationView } from './authorization-view';
 import { NumberView } from './number-view';
 import { CurrencyView } from './currency-view';
+import { AltIdView } from './alt-id-view';
+import { RequestIdView } from './request-id-view';
+import { WebhookSignatureView } from './webhook-signature-view';
+import { ApiVersionView } from './api-version-view';
+import { FeatureFlagView } from './feature-flag-view';
+import { CsrfView } from './csrf-view';
+import { MacView } from './mac-view';
+import { ArnView } from './arn-view';
 
 type ViewRenderer = (param: AnalyzedParam) => React.ReactNode;
 
@@ -78,10 +86,27 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
   authorization: (p) => <AuthorizationView meta={p.meta} />,
   number: (p) => <NumberView meta={p.meta} />,
   currency: (p) => <CurrencyView meta={p.meta} />,
+  request_id: (p) => <RequestIdView meta={p.meta} />,
+  webhook_signature: (p) => <WebhookSignatureView meta={p.meta} />,
+  api_version: (p) => <ApiVersionView meta={p.meta} />,
+  feature_flag: (p) => <FeatureFlagView meta={p.meta} />,
+  csrf: () => <CsrfView />,
+  alt_id: (p) => <AltIdView meta={p.meta} />,
+  mac: (p) => <MacView meta={p.meta} />,
+  arn: (p) => <ArnView meta={p.meta} />,
   uri: (p) => <UriView decoded={p.decoded} />,
 };
 
 export function ParamDetail({ param }: { param: AnalyzedParam }) {
   const renderView = PARAM_VIEWS[param.kind];
-  return <div className="font-mono text-xs">{renderView(param)}</div>;
+  return (
+    <div className="font-mono text-xs space-y-2">
+      {param.encodingIssue && (
+        <p className="text-amber-600 dark:text-amber-400 text-xs rounded bg-amber-500/10 px-2 py-1">
+          Encoding: {param.encodingIssue.detail}
+        </p>
+      )}
+      {renderView(param)}
+    </div>
+  );
 }

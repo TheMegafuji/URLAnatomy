@@ -66,9 +66,17 @@ const PARAM_NAMES: Record<ParamKind, string[]> = {
   currency: ['currency', 'currency_symbol', 'currency_code', 'curr'],
   number: ['amount', 'price', 'quantity', 'count', 'total', 'value'],
   authorization: ['Authorization', 'authorization', 'auth'],
+  request_id: ['X-Request-ID', 'X-Correlation-ID', 'request_id', 'correlation_id'],
+  webhook_signature: ['X-Hub-Signature-256', 'Stripe-Signature'],
+  api_version: [],
+  feature_flag: ['feature', 'ff', 'beta', 'variant', 'experiment'],
+  csrf: ['_csrf', 'csrf_token', 'authenticity_token'],
+  alt_id: ['id', 'ulid', 'objectId', 'nanoid'],
+  mac: ['mac', 'device_id', 'hwaddr'],
+  arn: ['resource', 'arn', 'resource_arn'],
 };
 
-const PATH_KINDS: ParamKind[] = ['uuid', 'timestamp'];
+const PATH_KINDS: ParamKind[] = ['uuid', 'timestamp', 'api_version'];
 
 function shuffle<T>(arr: T[]): T[] {
   const out = [...arr];

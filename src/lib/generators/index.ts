@@ -1,6 +1,7 @@
 import type { AnalyzedParam, ParamKind } from '@/lib/analyzers';
 import type { TimestampResult } from '@/lib/analyzers/timestamp';
 import type { UuidResult } from '@/lib/analyzers/uuid';
+import type { AltIdResult } from '@/lib/analyzers/alt-id';
 import type { JwtResult } from '@/lib/analyzers/jwt';
 import type { HashResult } from '@/lib/analyzers/hash';
 import type { ColorResult } from '@/lib/analyzers/color';
@@ -521,6 +522,65 @@ function genAuthorization(param: AnalyzedParam): string {
   return `Basic ${credentials}`;
 }
 
+const ULID_CHARS = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+function genUlid(): string {
+  const now = Date.now();
+  let t = '';
+  let n = now;
+  for (let i = 0; i < 10; i++) {
+    t = ULID_CHARS[n % 32]! + t;
+    n = Math.floor(n / 32);
+  }
+  const r = stringFromChars(16, ULID_CHARS);
+  return t + r;
+}
+
+function genNanoId(): string {
+  return stringFromChars(21, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-');
+}
+
+function genObjectId(): string {
+  const ts = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');
+  return ts + hex(16);
+}
+
+function genAltId(meta: AltIdResult | null): string {
+  const format = meta?.format ?? 'ulid';
+  if (format === 'objectid') return genObjectId();
+  if (format === 'nanoid') return genNanoId();
+  return genUlid();
+}
+
+function genRequestId(): string {
+  return crypto.randomUUID();
+}
+
+function genApiVersion(): string {
+  return 'v' + randInt(1, 3);
+}
+
+function genFeatureFlag(): string {
+  return rand(['true', 'false', 'on', 'off', 'new_ui', 'legacy']);
+}
+
+function genCsrf(): string {
+  return stringFromChars(32, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+}
+
+function genMac(): string {
+  const octets = Array.from({ length: 6 }, () => hex(2));
+  return octets.join(':');
+}
+
+function genArn(): string {
+  const partition = rand(['aws', 'aws-cn', 'aws-us-gov']);
+  const service = rand(['s3', 'iam', 'lambda', 'dynamodb']);
+  const region = service === 's3' ? '' : rand(['us-east-1', 'eu-west-1']);
+  const account = service === 's3' ? '' : String(100000000000 + Math.floor(Math.random() * 900000000000));
+  const resource = service === 's3' ? rand(['my-bucket', 'logs', 'data']) : rand(['user/name', 'role/Admin', 'function/my-fn']);
+  return ['arn', partition, service, region, account, resource].join(':');
+}
+
 const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
   timestamp: (p) => genTimestamp(p.meta as TimestampResult | null),
   uuid: (p) => genUuid(p.meta as UuidResult | null),
@@ -559,6 +619,14 @@ const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
   regex: genRegex,
   file_path: genFilePath,
   authorization: genAuthorization,
+  request_id: genRequestId,
+  webhook_signature: (p) => p.decoded || '<signature>',
+  api_version: genApiVersion,
+  feature_flag: genFeatureFlag,
+  csrf: genCsrf,
+  alt_id: (p) => genAltId(p.meta as AltIdResult | null),
+  mac: genMac,
+  arn: genArn,
 };
 
 export function generateValue(param: AnalyzedParam): string {
@@ -618,5 +686,14 @@ export const PARAM_KINDS: ParamKind[] = [
   'cron',
   'regex',
   'file_path',
+  'authorization',
+  'request_id',
+  'webhook_signature',
+  'api_version',
+  'feature_flag',
+  'csrf',
+  'alt_id',
+  'mac',
+  'arn',
   'uri',
 ];
