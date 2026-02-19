@@ -10,11 +10,13 @@ import { adsConfig } from '@/lib/ads-config';
 const inter = Inter({ subsets: ['latin'], variable: '--font-geist-sans' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://urlanatomy.com';
+const canonicalBase = 'https://urlanatomy.com';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? canonicalBase;
 const gaId = process.env.NEXT_PUBLIC_GA_ID ?? '';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(canonicalBase),
+  alternates: { canonical: './' },
   title: {
     default: 'URL Anatomy | Advanced URL Decoder & Security Inspector',
     template: '%s | URL Anatomy',

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 
-const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://urlanatomy.com').replace(/\/+$/, '');
+const canonicalBase = 'https://urlanatomy.com';
+const baseUrl = canonicalBase.replace(/\/+$/, '');
 
 const publicPaths = [
   { path: '', changeFrequency: 'weekly' as const, priority: 1 },
