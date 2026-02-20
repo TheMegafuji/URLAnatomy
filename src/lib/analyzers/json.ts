@@ -1,3 +1,5 @@
+import { extractJsonFromInput } from '@/lib/json-extract';
+
 export interface JsonResult {
   type: 'json';
   parsed: unknown;
@@ -8,33 +10,37 @@ export interface JsonResult {
 
 export function detectJson(value: string): JsonResult | null {
   const v = value.trim();
-  if (!v || (v[0] !== '{' && v[0] !== '[')) return null;
-  try {
-    const parsed = JSON.parse(v);
-    const formatted = JSON.stringify(parsed, null, 2);
-    return {
-      type: 'json',
-      parsed,
-      formatted,
-      raw: v,
-      valid: true,
-    };
-  } catch {
+  if (!v) return null;
+  if (v[0] === '{' || v[0] === '[') {
     try {
-      const unescaped = JSON.parse(JSON.stringify(v));
-      if (typeof unescaped === 'string') {
-        const inner = JSON.parse(unescaped);
+      const parsed = JSON.parse(v);
+      return {
+        type: 'json',
+        parsed,
+        formatted: JSON.stringify(parsed, null, 2),
+        raw: v,
+        valid: true,
+      };
+    } catch {
+      const extracted = extractJsonFromInput(v);
+      if (extracted)
         return {
           type: 'json',
-          parsed: inner,
-          formatted: JSON.stringify(inner, null, 2),
+          parsed: extracted.parsed,
+          formatted: extracted.normalized,
           raw: v,
           valid: true,
         };
-      }
-    } catch {
-      // ignore
+      return null;
     }
-    return null;
   }
+  const extracted = extractJsonFromInput(v);
+  if (!extracted) return null;
+  return {
+    type: 'json',
+    parsed: extracted.parsed,
+    formatted: extracted.normalized,
+    raw: v,
+    valid: true,
+  };
 }

@@ -7,6 +7,7 @@ import { parseUrl, analyzeParsedUrl, analyzeParam, detectJson } from '@/lib/anal
 import { parseCurl } from '@/lib/curl-parse';
 import { buildCurl } from '@/lib/curl-build';
 import { debounce, extractFirstUrl } from '@/lib/utils';
+import { extractJsonFromInput } from '@/lib/json-extract';
 import { generateExampleUrl } from '@/lib/example-url';
 import { replacePathSegment, replaceQueryParam } from '@/lib/url-build';
 import Image from 'next/image';
@@ -128,7 +129,11 @@ export default function Home() {
         setParsed(null);
         const json = detectJson(trimmed);
         if (json?.valid) {
-          setStandaloneJson(trimmed);
+          setStandaloneJson(json.formatted);
+          if (trimmed !== json.formatted) {
+            setSkipNextAnalysis(true);
+            setInput(json.formatted);
+          }
         } else {
           setStandaloneJson(null);
         }
@@ -262,8 +267,13 @@ export default function Home() {
       if (parseCurl(trimmed)) {
         setInput(trimmed);
       } else {
-        const url = extractFirstUrl(text);
-        setInput(url ?? trimmed);
+        const extracted = extractJsonFromInput(trimmed);
+        if (extracted) {
+          setInput(extracted.normalized);
+        } else {
+          const url = extractFirstUrl(text);
+          setInput(url ?? trimmed);
+        }
       }
     } catch {
       setInput('');
@@ -348,10 +358,16 @@ export default function Home() {
                     e.preventDefault();
                     setInput(pasted);
                   } else {
-                    const url = extractFirstUrl(pasted);
-                    if (url) {
+                    const extracted = extractJsonFromInput(pasted);
+                    if (extracted) {
                       e.preventDefault();
-                      setInput(url);
+                      setInput(extracted.normalized);
+                    } else {
+                      const url = extractFirstUrl(pasted);
+                      if (url) {
+                        e.preventDefault();
+                        setInput(url);
+                      }
                     }
                   }
                 }}

@@ -5,6 +5,7 @@ const REQUEST_ID_KEYS: Record<string, string> = {
   'trace_id': 'Trace ID',
   'request-id': 'Request ID',
   'request_id': 'Request ID',
+  'requestid': 'Request ID',
   'correlation-id': 'Correlation ID',
   'correlation_id': 'Correlation ID',
 };
