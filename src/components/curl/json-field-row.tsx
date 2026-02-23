@@ -20,7 +20,6 @@ export function JsonFieldRow({
   onReplaceField,
   originalFieldTypes = new Map(),
 }: JsonFieldRowProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const jsonMeta = param.meta as { parsed: unknown; formatted: string } | null;
 
   const nestedFields = useMemo(() => {
@@ -39,6 +38,8 @@ export function JsonFieldRow({
     }
     return [];
   }, [param, jsonMeta]);
+
+  const [isExpanded, setIsExpanded] = useState(nestedFields.length > 0);
 
   const updateNestedValue = useCallback(
     (obj: unknown, pathParts: string[], value: unknown): unknown => {

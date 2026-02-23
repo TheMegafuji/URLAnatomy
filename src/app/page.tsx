@@ -9,6 +9,7 @@ import { buildCurl } from '@/lib/curl-build';
 import { debounce, extractFirstUrl } from '@/lib/utils';
 import { extractJsonFromInput } from '@/lib/json-extract';
 import { generateExampleUrl } from '@/lib/example-url';
+import { generateExampleJson } from '@/lib/example-json';
 import { replacePathSegment, replaceQueryParam } from '@/lib/url-build';
 import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
@@ -407,6 +408,14 @@ export default function Home() {
               >
                 <Dices className="h-4 w-4" />
                 Generate example link
+              </button>
+              <button
+                type="button"
+                onClick={() => setInput(generateExampleJson())}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded hover:bg-muted/50 inline-flex items-center gap-1.5"
+              >
+                <Dices className="h-4 w-4" />
+                Generate example JSON
               </button>
             </div>
           </motion.section>
