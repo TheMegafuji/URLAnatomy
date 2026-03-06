@@ -57,3 +57,91 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+ 
+@media (max-width: 767px) {
+  .param-table-responsive {
+    display: block;
+  }
+  .param-table-responsive thead {
+    display: none;
+  }
+  .param-table-responsive tbody {
+    display: block;
+  }
+  .param-table-responsive tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    border-bottom: 1px solid hsl(var(--border));
+    padding: 0.75rem 0.5rem;
+    margin-bottom: 0;
+  }
+  .param-table-responsive tr:last-child {
+    border-bottom: none;
+  }
+  .param-table-responsive td {
+    display: block;
+    padding: 0.35rem 0;
+    border: none;
+  }
+  .param-table-responsive td[data-label="Param"] {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 65%;
+    padding-bottom: 0.2rem;
+    padding-right: 0.5rem;
+    text-align: left;
+  }
+  .param-table-responsive td[data-label="Param"]::before {
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--muted-foreground));
+    margin-right: 0.5rem;
+  }
+  .param-table-responsive td[data-label="Param"] code {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .param-table-responsive td[data-label="Type"] {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding-top: 0;
+    padding-bottom: 0.5rem;
+    vertical-align: middle;
+    text-align: right;
+  }
+  .param-table-responsive td[data-label="Type"]::before {
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--muted-foreground));
+    margin-right: 0.5rem;
+  }
+  .param-table-responsive td[data-label="Value"] {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem 0;
+    font-size: 0.8125rem;
+  }
+  .param-table-responsive td[data-label="Value"] .param-value-block {
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+  .param-table-responsive td[data-label="Actions"] {
+    flex: 0 0 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-top: 0.5rem;
+    padding-bottom: 0;
+  }
+}

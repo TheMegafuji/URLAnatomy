@@ -12,9 +12,11 @@ import { BADGE_LABEL } from '@/lib/param-labels';
 import { generateValue, canGenerate } from '@/lib/generators';
 import { Input } from '@/components/ui/input';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 import { JsonFieldRow } from './json-field-row';
 
 const MAX_VALUE_LEN = 48;
+const MAX_VALUE_LEN_MOBILE = 999;
 
 function truncate(s: string, max: number): string {
   if (s.length <= max) return s;
@@ -75,13 +77,17 @@ function ParamTableRow({
   originalKind?: ParamKind;
 }) {
   const isEditing = editingIndex === index;
-  const valueDisplay = truncate(param.decoded || param.value, MAX_VALUE_LEN);
+  const isMobile = useIsMobile();
+  const valueDisplay = truncate(
+    param.decoded || param.value,
+    isMobile ? MAX_VALUE_LEN_MOBILE : MAX_VALUE_LEN
+  );
   const kindToUse = originalKind || param.kind;
   const canGen = canGenerate(kindToUse);
 
   const trigger = (
     <span
-      className="font-mono text-xs break-all cursor-pointer inline-flex items-center gap-1 text-left"
+      className="font-mono text-xs break-all cursor-pointer inline-flex items-center gap-1 text-left param-value-block"
       title="Hover or click for detail"
     >
       {valueDisplay}
@@ -124,10 +130,10 @@ function ParamTableRow({
       transition={{ delay: index * 0.02 }}
       className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
     >
-      <td className="py-2.5 pl-3 pr-3 align-top">
+      <td data-label="Param" className="py-2.5 pl-3 pr-3 align-top">
         <code className="text-xs text-muted-foreground">{param.key || '—'}</code>
       </td>
-      <td className="py-2.5 pr-3 align-top">
+      <td data-label="Type" className="py-2.5 pr-3 align-top">
         <div className="flex flex-wrap items-center gap-1">
           <Badge variant={kindToUse} className="shrink-0">
             {BADGE_LABEL[kindToUse]}
@@ -142,14 +148,14 @@ function ParamTableRow({
           )}
         </div>
       </td>
-      <td className="py-2.5 pr-3 align-top max-w-[200px]">
+      <td data-label="Value" className="py-2.5 pr-3 align-top min-w-0 md:max-w-[200px]">
         {isEditing ? (
           <Input
             value={editValue}
             onChange={(e) => onEditChange(e.target.value)}
             onBlur={() => onCommitEdit(index)}
             onKeyDown={handleKeyDown}
-            className="h-7 text-xs font-mono"
+            className="h-7 text-xs font-mono w-full"
             autoFocus
           />
         ) : (
@@ -157,19 +163,19 @@ function ParamTableRow({
             <button
               type="button"
               onClick={() => onOpenDetail(param)}
-              className="md:hidden text-left w-full font-mono text-xs break-all inline-flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-ring rounded py-0.5"
+              className="md:hidden text-left w-full font-mono text-xs inline-flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-ring rounded py-0.5 param-value-block"
             >
               {valueDisplay}
               <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
             </button>
-            <div className="hidden md:block">
+            <div className="hidden md:block param-value-block">
               <Popover trigger={trigger} content={detailContent} />
             </div>
           </>
         )}
       </td>
       {onReplaceParam && (
-        <td className="py-2.5 pr-3 align-top w-0">
+        <td data-label="Actions" className="py-2.5 pr-3 align-top w-0">
           <div className="flex items-center gap-0.5">
             <ActionButton
               label={copied ? 'Copied' : 'Copy value'}
@@ -243,7 +249,7 @@ export function PayloadParamTable({
     return <p className="text-sm text-muted-foreground py-4">{emptyMessage}</p>;
   return (
     <>
-      <table className="w-full table-auto">
+      <table className="param-table-responsive w-full table-auto">
         <thead>
           <tr className="border-b-2 border-border text-muted-foreground">
             <th className="py-2 pl-3 pr-3 text-left font-medium text-xs">Param</th>
