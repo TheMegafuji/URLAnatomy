@@ -10,7 +10,7 @@ import { debounce, extractFirstUrl } from '@/lib/utils';
 import { extractJsonFromInput } from '@/lib/json-extract';
 import { generateExampleUrl } from '@/lib/example-url';
 import { generateExampleJson } from '@/lib/example-json';
-import { replacePathSegment, replaceQueryParam } from '@/lib/url-build';
+import { replacePathSegment, replaceQueryParam, removeQueryParam } from '@/lib/url-build';
 import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -243,6 +243,31 @@ export default function Home() {
         const fullUrl = `${built}`;
         const newCurl = buildCurl({
           url: fullUrl,
+          method: curlMeta.method,
+          headers: curlMeta.headers,
+          payload: curlMeta.payload,
+        });
+        setSkipNextAnalysis(true);
+        setInput(newCurl);
+        setHasModifiedCurl(true);
+      } else {
+        const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
+        const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
+        setInput(nextUrl);
+        runAnalysis(nextUrl);
+        setHasModifiedUrl(true);
+      }
+    },
+    [parsed, input, runAnalysis, curlMeta]
+  );
+
+  const onRemoveQueryParam = useCallback(
+    (index: number) => {
+      if (!parsed) return;
+      const built = removeQueryParam(parsed, index);
+      if (curlMeta) {
+        const newCurl = buildCurl({
+          url: built,
           method: curlMeta.method,
           headers: curlMeta.headers,
           payload: curlMeta.payload,
@@ -575,6 +600,7 @@ export default function Home() {
                       params={analysis?.queryParams ?? []}
                       emptyMessage="No query params"
                       onReplaceParam={onReplaceQueryParam}
+                      onRemoveParam={onRemoveQueryParam}
                     />
                   </div>
                 </article>

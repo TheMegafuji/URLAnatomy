@@ -18,3 +18,9 @@ export function replaceQueryParam(parsed: ParsedUrl, index: number, newValue: st
   const params = parsed.queryParams.map((q, i) => (i === index ? { ...q, value: newValue } : q));
   return buildUrl(parsed, parsed.pathSegments, params);
 }
+
+export function removeQueryParam(parsed: ParsedUrl, index: number): string {
+  if (index < 0 || index >= parsed.queryParams.length) return parsed.raw;
+  const params = parsed.queryParams.filter((_, i) => i !== index);
+  return buildUrl(parsed, parsed.pathSegments, params);
+}

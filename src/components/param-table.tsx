@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, Pencil, Dices, Copy, Check } from 'lucide-react';
+import { ChevronRight, Pencil, Dices, Copy, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover } from '@/components/ui/popover';
 import { DetailSheet } from '@/components/detail-sheet';
@@ -55,6 +55,7 @@ function ParamTableRow({
   index,
   onOpenDetail,
   onReplaceParam,
+  onRemoveParam,
   editingIndex,
   editValue,
   onStartEdit,
@@ -66,6 +67,7 @@ function ParamTableRow({
   index: number;
   onOpenDetail: (param: AnalyzedParam) => void;
   onReplaceParam?: (index: number, newValue: string) => void;
+  onRemoveParam?: (index: number) => void;
   editingIndex: number | null;
   editValue: string;
   onStartEdit: (index: number, value: string) => void;
@@ -165,7 +167,7 @@ function ParamTableRow({
           </>
         )}
       </td>
-      {onReplaceParam && (
+      {(onReplaceParam || onRemoveParam) && (
         <td data-label="Actions" className="py-2.5 pr-3 align-top w-0">
           <div className="flex items-center gap-0.5">
             <ActionButton
@@ -174,19 +176,31 @@ function ParamTableRow({
               icon={copied ? Check : Copy}
               onClick={handleCopyValue}
             />
-            <ActionButton
-              label="Edit value"
-              title="Edit this value inline"
-              icon={Pencil}
-              onClick={() => onStartEdit(index, param.decoded || param.value)}
-            />
-            <ActionButton
-              label="Generate same type"
-              title="Generate a new value of the same type (e.g. new UUID, new JWT)"
-              icon={Dices}
-              onClick={handleGenerate}
-              disabled={!canGen}
-            />
+            {onReplaceParam && (
+              <>
+                <ActionButton
+                  label="Edit value"
+                  title="Edit this value inline"
+                  icon={Pencil}
+                  onClick={() => onStartEdit(index, param.decoded || param.value)}
+                />
+                <ActionButton
+                  label="Generate same type"
+                  title="Generate a new value of the same type (e.g. new UUID, new JWT)"
+                  icon={Dices}
+                  onClick={handleGenerate}
+                  disabled={!canGen}
+                />
+              </>
+            )}
+            {onRemoveParam && (
+              <ActionButton
+                label="Remove parameter"
+                title="Remove this parameter"
+                icon={X}
+                onClick={() => onRemoveParam(index)}
+              />
+            )}
           </div>
         </td>
       )}
@@ -198,10 +212,12 @@ export function ParamTable({
   params,
   emptyMessage = 'No parameters',
   onReplaceParam,
+  onRemoveParam,
 }: {
   params: AnalyzedParam[];
   emptyMessage?: string;
   onReplaceParam?: (index: number, newValue: string) => void;
+  onRemoveParam?: (index: number) => void;
 }) {
   const [sheetParam, setSheetParam] = useState<AnalyzedParam | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -242,7 +258,7 @@ export function ParamTable({
             <th className="py-2 pl-3 pr-3 text-left font-medium text-xs">Param</th>
             <th className="py-2 pr-3 text-left font-medium text-xs">Type</th>
             <th className="py-2 pr-3 text-left font-medium text-xs">Value</th>
-            {onReplaceParam && (
+            {(onReplaceParam || onRemoveParam) && (
               <th className="py-2 pr-3 text-left font-medium text-xs w-0">Actions</th>
             )}
           </tr>
@@ -255,6 +271,7 @@ export function ParamTable({
               index={i}
               onOpenDetail={openDetail}
               onReplaceParam={onReplaceParam}
+              onRemoveParam={onRemoveParam}
               editingIndex={editingIndex}
               editValue={editValue}
               onStartEdit={handleStartEdit}

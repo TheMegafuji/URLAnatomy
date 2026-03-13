@@ -8,7 +8,7 @@ import { PayloadParamTable } from './payload-param-table';
 import { detectJson, analyzeParam } from '@/lib/analyzers';
 import { generateValue } from '@/lib/generators';
 import { JsonSyntaxHighlight } from './json-syntax-highlight';
-import type { AnalyzedParam } from '@/lib/analyzers';
+import type { AnalyzedParam, ParamKind } from '@/lib/analyzers';
 
 interface PayloadEditorProps {
   payload: {
@@ -147,6 +147,31 @@ export function PayloadEditor({ payload, onReplace, title = 'Payload' }: Payload
     [payload.json, onReplace, updateNestedValue]
   );
 
+  const handleRemoveField = useCallback(
+    (index: number) => {
+      if (!payload.json || !payload.json.valid) return;
+      const parsed = payload.json.parsed;
+      if (parsed != null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const entries = Object.entries(parsed as Record<string, unknown>);
+        const filtered = entries.filter((_, i) => i !== index);
+        const updated = Object.fromEntries(filtered);
+        onReplace(JSON.stringify(updated, null, 2));
+      } else if (Array.isArray(parsed)) {
+        const updated = parsed.filter((_, i) => i !== index);
+        onReplace(JSON.stringify(updated, null, 2));
+      }
+      setOriginalFieldTypes((prev) => {
+        const next = new Map<number, ParamKind>();
+        prev.forEach((kind, i) => {
+          if (i < index) next.set(i, kind);
+          if (i > index) next.set(i - 1, kind);
+        });
+        return next;
+      });
+    },
+    [payload.json, onReplace]
+  );
+
   const generateAllRecursive = useCallback((value: unknown, keyForAnalysis: string): unknown => {
     if (value === null || value === undefined) return value;
     if (typeof value === 'object' && !Array.isArray(value)) {
@@ -274,6 +299,7 @@ export function PayloadEditor({ payload, onReplace, title = 'Payload' }: Payload
                   params={displayFields}
                   emptyMessage="No fields"
                   onReplaceParam={handleReplaceField}
+                  onRemoveParam={handleRemoveField}
                   onReplaceNestedField={handleReplaceNestedField}
                   originalFieldTypes={originalFieldTypes}
                 />
