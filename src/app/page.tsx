@@ -22,6 +22,7 @@ import { SidebarAd } from '@/components/ads/sidebar-ad';
 // import { BottomAd } from '@/components/ads/bottom-ad'; // Re-enable after AdSense approval
 import { Footer } from '@/components/footer';
 import { SeoAccordion } from '@/components/seo/SeoAccordion';
+import { ChangelogSection } from '@/components/changelog-section';
 import { PayloadEditor } from '@/components/curl/payload-editor';
 import Link from 'next/link';
 
@@ -630,6 +631,7 @@ export default function Home() {
           )}
 
           <SeoAccordion />
+          <ChangelogSection />
         </div>
         <SidebarAd />
       </main>
