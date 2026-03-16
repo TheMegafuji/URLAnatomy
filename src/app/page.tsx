@@ -352,7 +352,7 @@ export default function Home() {
               </p>
             </div>
             <p className="md:hidden text-sm text-muted-foreground mb-3 max-w-xl">
-              Paste a <strong className="text-foreground/80">URL</strong>, <strong className="text-foreground/80">cURL</strong>, or <strong className="text-foreground/80">JSON</strong> — we decode and inspect in your browser.{' '}
+              URL Anatomy is a privacy-first URL analyzer and debugger for developers, marketers, and data teams. Paste any <strong className="text-foreground/80">URL</strong>, <strong className="text-foreground/80">cURL</strong>, or <strong className="text-foreground/80">JSON</strong> to instantly break it down into readable parts in your browser.{' '}
               <Link
                 href="/learn"
                 className="text-foreground/80 hover:text-foreground underline underline-offset-2"
@@ -360,8 +360,8 @@ export default function Home() {
                 Learn more
               </Link>
             </p>
-            <p className="hidden md:block text-sm text-muted-foreground mb-3 max-w-xl">
-              Paste a <strong className="text-foreground/80">URL</strong>, <strong className="text-foreground/80">cURL command</strong>, or <strong className="text-foreground/80">raw JSON</strong> — we decode JWTs, timestamps, headers, and payloads in your browser. Nothing leaves your device.{' '}
+            <p className="hidden md:block text-sm text-muted-foreground mb-4 max-w-2xl">
+              URL Anatomy is a privacy-first URL analyzer and request debugger. Paste a <strong className="text-foreground/80">URL</strong>, <strong className="text-foreground/80">cURL command</strong>, or <strong className="text-foreground/80">raw JSON payload</strong> to decode protocols, hosts, paths, query parameters, headers, JWTs, timestamps, and more — all client-side, without sending data to any server. Use it to debug API calls, understand tracking parameters, clean messy URLs for SEO, and safely inspect tokens in your browser.{' '}
               <Link
                 href="/learn"
                 className="text-foreground/80 hover:text-foreground underline underline-offset-2"
@@ -445,6 +445,70 @@ export default function Home() {
               </button>
             </div>
           </motion.section>
+
+          <section className="mb-8" aria-labelledby="what-you-can-do-heading">
+            <h2
+              id="what-you-can-do-heading"
+              className="text-sm font-medium text-muted-foreground mb-3"
+            >
+              What you can do with URL Anatomy
+            </h2>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">Decode and inspect full URLs</h3>
+                <p className="text-muted-foreground">
+                  Paste any URL to see a structured breakdown of its protocol, host, path, query
+                  string, and fragment. Quickly copy a clean version of your link without unnecessary
+                  query parameters or tracking tags.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">Analyze cURL commands for APIs</h3>
+                <p className="text-muted-foreground">
+                  Drop in a complete cURL command to automatically extract the HTTP method, endpoint
+                  URL, headers, and JSON payload. Edit any part of the request and copy back a valid
+                  command for your API debugging workflow.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">Inspect and beautify JSON payloads</h3>
+                <p className="text-muted-foreground">
+                  Format and explore raw JSON from API responses, webhooks, or logs. Highlight keys
+                  and values to quickly understand nested structures and spot issues in your data.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">
+                  Detect and decode JWTs and timestamps
+                </h3>
+                <p className="text-muted-foreground">
+                  Automatically detect JSON Web Tokens (JWTs) and common timestamp formats embedded
+                  in URLs, headers, or JSON bodies. Decode them locally in your browser to understand
+                  what data is being passed around.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">
+                  Clean tracking parameters and UTM tags
+                </h3>
+                <p className="text-muted-foreground">
+                  Separate marketing and analytics parameters like UTM tags, gclid, and fbclid from
+                  essential query parameters. Generate a clean, shareable URL that is easier to read,
+                  better for SEO, and more privacy-friendly.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">
+                  Debug URLs for SEO, analytics, and security
+                </h3>
+                <p className="text-muted-foreground">
+                  Use URL Anatomy as a URL debugger to see exactly how your links are constructed.
+                  Catch broken query strings, duplicated parameters, and incorrect encodings that can
+                  affect analytics accuracy, user experience, and search performance.
+                </p>
+              </div>
+            </div>
+          </section>
 
           <section className="mb-8" aria-labelledby="featured-guides-heading">
             <h2 id="featured-guides-heading" className="text-sm font-medium text-muted-foreground mb-3">
