@@ -8,6 +8,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-03-16',
+    added: [
+      'Expanded Learn page content with detailed guides on how to use URL Anatomy, JWT debugging, timestamp conversion, and URL security reviews.',
+      'New How it works and Quick answers sections on the home page to explain the tool, privacy model, and target audience in more detail.',
+    ],
+    changed: [
+      'Improved copy and semantic structure on Learn and Home to provide higher-value, English-first documentation for users and search engines.',
+    ],
+  },
+  {
     date: '2026-03-13',
     added: [
       'Payload editor: remove individual query parameters from the request body.',

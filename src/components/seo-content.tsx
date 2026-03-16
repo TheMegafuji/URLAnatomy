@@ -2,23 +2,69 @@ export function SeoContent() {
   return (
     <article className="w-full max-w-5xl mx-auto px-4 py-12 lg:py-16 text-muted-foreground">
       <div className="space-y-12">
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
+        <section aria-labelledby="learn-overview-heading">
+          <h2
+            id="learn-overview-heading"
+            className="text-xl font-semibold text-foreground mb-4"
+          >
             Why use URL Anatomy?
           </h2>
-          <p className="text-sm leading-relaxed max-w-3xl">
+          <p className="text-sm leading-relaxed max-w-3xl mb-3">
             URL Anatomy is a <strong className="text-foreground">URL Decoder</strong> and{' '}
             <strong className="text-foreground">JWT Debugger</strong> that runs entirely in your
-            browser. No data leaves your device—ideal for inspecting production URLs, debugging
-            tokens, and running a quick <strong className="text-foreground">Security Audit</strong>{' '}
-            on links. Use it as a <strong className="text-foreground">Timestamp Converter</strong>,{' '}
-            <strong className="text-foreground">Clean URL</strong> tool, and parameter inspector
-            without sending anything to a server.
+            browser. It is designed for developers, marketers, and data teams who need to
+            understand complex links, deep-link URLs, redirect chains, and API calls quickly.
+          </p>
+          <p className="text-sm leading-relaxed max-w-3xl mb-3">
+            Because all parsing and analysis is performed locally, no data leaves your device.
+            This makes the tool suitable for inspecting production URLs, debugging tokens, and
+            running a lightweight <strong className="text-foreground">security review</strong> of
+            links that may contain sensitive information.
+          </p>
+          <p className="text-sm leading-relaxed max-w-3xl">
+            You can use URL Anatomy as a <strong className="text-foreground">Timestamp Converter</strong>,{' '}
+            <strong className="text-foreground">Clean URL</strong> helper, and structured parameter
+            inspector when you are working with logs, analytics dashboards, marketing campaigns,
+            or API-driven backends.
           </p>
         </section>
 
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
+        <section aria-labelledby="learn-how-to-use-heading">
+          <h2
+            id="learn-how-to-use-heading"
+            className="text-xl font-semibold text-foreground mb-4"
+          >
+            How to use URL Anatomy step by step
+          </h2>
+          <ol className="list-decimal pl-5 space-y-2 text-sm leading-relaxed max-w-3xl">
+            <li>
+              Copy a URL, cURL command, or JSON payload from your browser, logs, API client, or
+              documentation.
+            </li>
+            <li>
+              Paste it into the main input on the home page. The tool automatically detects
+              whether the input is a URL, cURL command, or raw JSON.
+            </li>
+            <li>
+              Review the decoded structure: protocol, host, path segments, query parameters,
+              headers, and payload. For cURL, the HTTP method and headers are extracted for you.
+            </li>
+            <li>
+              Use the editable tables to change path segments, query parameters, headers, or JSON
+              fields. A new URL or cURL command is generated as you type.
+            </li>
+            <li>
+              Copy the cleaned or updated URL back into your browser, codebase, or documentation
+              once you are satisfied with the result.
+            </li>
+          </ol>
+        </section>
+
+        <section aria-labelledby="learn-parameters-heading">
+          <h2
+            id="learn-parameters-heading"
+            className="text-xl font-semibold text-foreground mb-4"
+          >
             Understand your URL parameters
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -26,118 +72,154 @@ export function SeoContent() {
               <h3 className="font-medium text-foreground mb-2">JWT Debugger</h3>
               <p className="leading-relaxed">
                 Paste a URL with a <code className="rounded bg-muted px-1">token</code> or{' '}
-                <code className="rounded bg-muted px-1">jwt</code> param. We decode the header and
-                payload in-browser so you can verify claims and expiry without exposing tokens to
-                third parties. Common pain: expired or malformed JWTs in redirect URLs—inspect them
-                safely here.
+                <code className="rounded bg-muted px-1">jwt</code> parameter. URL Anatomy decodes
+                the header and payload locally so you can verify claims, expiry, and audience
+                without exposing tokens to external services.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card/50 p-4 text-sm">
-              <h3 className="font-medium text-foreground mb-2">UUID & identifiers</h3>
+              <h3 className="font-medium text-foreground mb-2">UUID and identifiers</h3>
               <p className="leading-relaxed">
-                URLs often carry UUIDs, CUIDs, or long hex strings in path or query. The tool
-                detects and labels them so you can tell resource IDs from tracking params. Helps
-                when refactoring APIs or cleaning URLs for sharing.
+                URLs often carry UUIDs, CUIDs, or long hex strings in the path or query string.
+                These are detected and labeled so you can quickly distinguish resource identifiers
+                from tracking parameters when refactoring APIs or cleaning links for sharing.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card/50 p-4 text-sm">
               <h3 className="font-medium text-foreground mb-2">Timestamp Converter</h3>
               <p className="leading-relaxed">
-                Unix timestamps in <code className="rounded bg-muted px-1">exp</code>,{' '}
-                <code className="rounded bg-muted px-1">iat</code>, or custom params are
-                automatically detected and shown in human-readable form. No more copying values
-                into external converters—everything stays in one place.
+                Unix timestamps in parameters such as <code className="rounded bg-muted px-1">exp</code>,{' '}
+                <code className="rounded bg-muted px-1">iat</code>, or <code className="rounded bg-muted px-1">ts</code>{' '}
+                are detected and shown in human-readable form. This is useful for debugging
+                authentication flows, scheduled jobs, and audit logs.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card/50 p-4 text-sm">
-              <h3 className="font-medium text-foreground mb-2">Clean URL</h3>
+              <h3 className="font-medium text-foreground mb-2">Clean URL for SEO and sharing</h3>
               <p className="leading-relaxed">
-                Marketing and tracking query params (UTM, fbclid, gclid, etc.) are flagged. Get a
-                <strong className="text-foreground"> Clean URL</strong> with trackers stripped for
-                sharing or documentation, while keeping functional parameters intact.
+                Marketing and tracking query parameters such as UTM tags, <code className="rounded bg-muted px-1">fbclid</code>,{' '}
+                and <code className="rounded bg-muted px-1">gclid</code> are highlighted, and you
+                can generate a clean version of the URL with those values removed. This helps
+                when you need a readable, long-term link for documentation or user communication.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card/50 p-4 text-sm">
-              <h3 className="font-medium text-foreground mb-2">Security Audit</h3>
+              <h3 className="font-medium text-foreground mb-2">Security review of links</h3>
               <p className="leading-relaxed">
-                Sensitive patterns like API keys, private keys, database connection strings, and
-                wallet addresses are highlighted. Use this as a first pass before committing URLs
-                to docs or logs—everything runs <strong className="text-foreground">client-side</strong>.
+                Potentially sensitive patterns such as API keys, access tokens, connection
+                strings, and wallet addresses are highlighted. This makes it easier to spot
+                information that should not be committed to public repositories or sent in
+                support tickets.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card/50 p-4 text-sm">
-              <h3 className="font-medium text-foreground mb-2">Base64 & JSON</h3>
+              <h3 className="font-medium text-foreground mb-2">Base64 and JSON payloads</h3>
               <p className="leading-relaxed">
-                Encoded query or path segments are decoded when safe. Nested JSON in parameters
-                is pretty-printed so you can read payloads without leaving the page. Handy for
-                webhooks and deep links.
+                Encoded query or path segments are decoded when safe, and nested JSON payloads
+                are pretty-printed. This is particularly helpful for webhook URLs, signed links,
+                and mobile deep links that pack structured data into a single parameter.
               </p>
             </div>
           </div>
         </section>
 
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            How to decode JWT tokens securely?
+        <section aria-labelledby="learn-jwt-heading">
+          <h2
+            id="learn-jwt-heading"
+            className="text-xl font-semibold text-foreground mb-4"
+          >
+            How to decode JWT tokens securely
           </h2>
-          <p className="text-sm leading-relaxed max-w-3xl mb-4">
-            Paste a URL that contains a JWT (e.g. in a <code className="rounded bg-muted px-1">token</code> or{' '}
-            <code className="rounded bg-muted px-1">access_token</code> query parameter). URL Anatomy
-            decodes the token in your browser only. The signature is not verified (that would require
-            your secret); you get a readable view of header and payload so you can check expiry,
-            claims, and structure. Because processing is <strong className="text-foreground">client-side</strong>,
-            your tokens never touch our servers—safe for production debugging.
+          <p className="text-sm leading-relaxed max-w-3xl mb-3">
+            JWTs are widely used for authentication and authorization. When a token is embedded
+            in a URL, it is often difficult to inspect without sending it to a remote service.
+            URL Anatomy decodes JWTs directly in your browser so you can check the structure and
+            claims while keeping control of the token.
+          </p>
+          <p className="text-sm leading-relaxed max-w-3xl mb-3">
+            Paste a URL that contains a JWT, for example in a <code className="rounded bg-muted px-1">token</code>{' '}
+            or <code className="rounded bg-muted px-1">access_token</code> parameter. The tool
+            splits the token into header, payload, and signature, and shows the decoded JSON for
+            the first two parts. The signature is not verified because that would require your
+            private key or secret.
+          </p>
+          <p className="text-sm leading-relaxed max-w-3xl">
+            Use this view to confirm expiration times, audiences, and custom claims. Because the
+            processing is <strong className="text-foreground">client-side</strong>, your tokens
+            never leave your device and are not stored or logged.
           </p>
         </section>
 
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
+        <section aria-labelledby="learn-timestamp-heading">
+          <h2
+            id="learn-timestamp-heading"
+            className="text-xl font-semibold text-foreground mb-4"
+          >
             What is a Timestamp Converter?
           </h2>
+          <p className="text-sm leading-relaxed max-w-3xl mb-3">
+            Many APIs, audit logs, and JWTs represent time as numeric Unix timestamps. Manually
+            converting those values in another tool slows down debugging and increases the risk
+            of mistakes.
+          </p>
           <p className="text-sm leading-relaxed max-w-3xl">
-            Many APIs and JWTs use Unix timestamps (seconds since 1970). Our Timestamp Converter
-            detects numeric values in URL parameters (and inside decoded JWTs) and shows the
-            equivalent date and time in your locale. No need to open another tab—just paste the
-            URL and read the human-readable dates next to each value.
+            URL Anatomy scans parameters and decoded payloads for timestamp-like values and shows
+            the equivalent dates in your locale. This helps you quickly understand when a token
+            expires, when a background job is scheduled to run, or when a user action was
+            recorded, without leaving the page.
           </p>
         </section>
 
-        <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
+        <section aria-labelledby="learn-faq-heading">
+          <h2
+            id="learn-faq-heading"
+            className="text-xl font-semibold text-foreground mb-4"
+          >
             Frequently asked questions
           </h2>
           <dl className="space-y-4 text-sm">
             <div className="rounded-lg border border-border bg-card/50 p-4">
               <dt className="font-medium text-foreground mb-1">
-                Are my tokens safe? Is anything sent to your servers?
+                Are my tokens and URLs safe? Is anything sent to your servers?
               </dt>
               <dd className="leading-relaxed text-muted-foreground">
-                Yes—your tokens and URLs are safe. All decoding and analysis runs{' '}
-                <strong className="text-foreground">client-side</strong> in your browser. We do not
-                send, store, or log the content you paste. The page can work offline after load.
-                Use it for production JWTs and sensitive URLs with confidence.
+                All decoding and analysis runs <strong className="text-foreground">client-side</strong>{' '}
+                in your browser. We do not send, store, or log the content that you paste into the
+                tool. After the page has loaded, the core functionality can work even if you go
+                offline.
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-card/50 p-4">
               <dt className="font-medium text-foreground mb-1">
-                How to decode Base64 in a URL?
+                How do I decode Base64 or nested JSON in a URL?
               </dt>
               <dd className="leading-relaxed text-muted-foreground">
-                Paste the full URL into the input. URL Anatomy automatically detects Base64-encoded
-                query or path segments and shows the decoded value. If a param contains Base64
-                JSON, it is parsed and pretty-printed. No extra steps—just paste and scroll to
-                the decoded section for that parameter.
+                Paste the full URL into the input. URL Anatomy detects Base64-encoded values in
+                query or path segments and shows the decoded result. If the decoded value is JSON,
+                it is parsed and rendered in a readable format so you can inspect keys and values
+                without leaving the page.
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-card/50 p-4">
               <dt className="font-medium text-foreground mb-1">
-                Can I use this for a Security Audit of my links?
+                Can I use this tool as part of a security or privacy review?
               </dt>
               <dd className="leading-relaxed text-muted-foreground">
-                Yes. The tool flags potential secrets (API keys, connection strings, crypto
-                addresses, etc.) and highlights risky patterns. Use it to review URLs before
-                sharing in docs, logs, or support tickets. Because everything runs locally, you
-                can audit sensitive links without exposing them to the cloud.
+                Yes. The tool highlights patterns that often indicate secrets or sensitive data and
+                helps you spot information that should be removed from public logs, repositories,
+                or support tickets. Because everything is processed locally, you can safely inspect
+                production URLs and tokens as part of your review process.
+              </dd>
+            </div>
+            <div className="rounded-lg border border-border bg-card/50 p-4">
+              <dt className="font-medium text-foreground mb-1">
+                Who is URL Anatomy designed for?
+              </dt>
+              <dd className="leading-relaxed text-muted-foreground">
+                The tool is primarily designed for software engineers, SREs, security engineers,
+                analysts, and marketers who regularly work with URLs, redirects, and tracking
+                parameters. However, anyone who needs a clear explanation of a long or complex URL
+                can benefit from it.
               </dd>
             </div>
           </dl>
@@ -145,10 +227,10 @@ export function SeoContent() {
 
         <section className="rounded-lg border border-border bg-muted/30 p-4 text-sm">
           <p className="leading-relaxed">
-            <strong className="text-foreground">Privacy-first.</strong> URL Anatomy is a URL Decoder,
-            JWT Debugger, and Timestamp Converter that runs 100% in your browser. No server-side
-            processing—decode JWTs, clean URLs, and run a Security Audit on your links with zero
-            data leaving your device.
+            <strong className="text-foreground">Privacy-first.</strong> URL Anatomy is a URL
+            Decoder, JWT Debugger, and Timestamp Converter that runs in your browser without
+            server-side processing. Use it to decode JWTs, clean URLs, and perform a lightweight
+            security and analytics review of your links while keeping control of your data.
           </p>
         </section>
       </div>
