@@ -92,6 +92,16 @@ export function JsonFieldRow({
     [onReplaceField, jsonMeta, nestedFields, path, originalFieldTypes, updateNestedValue]
   );
 
+  const originalChildTypes = useMemo(() => {
+    const map = new Map<number, AnalyzedParam['kind']>();
+    for (let i = 0; i < nestedFields.length; i++) {
+      const field = nestedFields[i];
+      const fieldPathKey = [...path, field.key].join('.');
+      map.set(i, originalFieldTypes.get(fieldPathKey) ?? field.kind);
+    }
+    return map;
+  }, [nestedFields, originalFieldTypes, path]);
+
   if (nestedFields.length === 0) return null;
 
   return (
@@ -116,36 +126,18 @@ export function JsonFieldRow({
       </p>
       {isExpanded && (
         <div className="mt-2">
-          {nestedFields.map((field, index) => {
-            const fieldPath = [...path, field.key];
-            if (field.kind === 'json') {
-              return (
-                <JsonFieldRow
-                  key={`${fieldPath.join('.')}-${index}`}
-                  param={field}
-                  path={fieldPath}
-                  onReplaceField={onReplaceField}
-                  originalFieldTypes={originalFieldTypes}
-                />
-              );
-            }
-            return (
-              <div key={`${fieldPath.join('.')}-${index}`} className="mb-1 pl-4">
-                <PayloadParamTable
-                  params={[field]}
-                  emptyMessage=""
-                  onReplaceParam={(idx, val) => handleReplace(index, val)}
-                  onReplaceNestedField={(nestedPath, newJson) => {
-                    if (onReplaceField) {
-                      const fullPath = [...path, ...nestedPath];
-                      onReplaceField(fullPath, newJson);
-                    }
-                  }}
-                  originalFieldTypes={new Map([[0, originalFieldTypes.get(fieldPath.join('.')) || field.kind]])}
-                />
-              </div>
-            );
-          })}
+          <div className="mb-1 pl-4">
+            <PayloadParamTable
+              params={nestedFields}
+              emptyMessage=""
+              onReplaceParam={handleReplace}
+              onReplaceNestedField={(nestedPath, newJson) => {
+                if (!onReplaceField) return;
+                onReplaceField([...path, ...nestedPath], newJson);
+              }}
+              originalFieldTypes={originalChildTypes}
+            />
+          </div>
         </div>
       )}
     </div>
