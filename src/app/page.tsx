@@ -446,149 +446,6 @@ export default function Home() {
             </div>
           </motion.section>
 
-          <section className="mb-8" aria-labelledby="what-you-can-do-heading">
-            <h2
-              id="what-you-can-do-heading"
-              className="text-sm font-medium text-muted-foreground mb-3"
-            >
-              What you can do with URL Anatomy
-            </h2>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-                <h3 className="font-medium text-foreground mb-1">Decode and inspect full URLs</h3>
-                <p className="text-muted-foreground">
-                  Paste any URL to see a structured breakdown of its protocol, host, path, query
-                  string, and fragment. Quickly copy a clean version of your link without unnecessary
-                  query parameters or tracking tags.
-                </p>
-              </div>
-              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-                <h3 className="font-medium text-foreground mb-1">Analyze cURL commands for APIs</h3>
-                <p className="text-muted-foreground">
-                  Drop in a complete cURL command to automatically extract the HTTP method, endpoint
-                  URL, headers, and JSON payload. Edit any part of the request and copy back a valid
-                  command for your API debugging workflow.
-                </p>
-              </div>
-              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-                <h3 className="font-medium text-foreground mb-1">Inspect and beautify JSON payloads</h3>
-                <p className="text-muted-foreground">
-                  Format and explore raw JSON from API responses, webhooks, or logs. Highlight keys
-                  and values to quickly understand nested structures and spot issues in your data.
-                </p>
-              </div>
-              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-                <h3 className="font-medium text-foreground mb-1">
-                  Detect and decode JWTs and timestamps
-                </h3>
-                <p className="text-muted-foreground">
-                  Automatically detect JSON Web Tokens (JWTs) and common timestamp formats embedded
-                  in URLs, headers, or JSON bodies. Decode them locally in your browser to understand
-                  what data is being passed around.
-                </p>
-              </div>
-              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-                <h3 className="font-medium text-foreground mb-1">
-                  Clean tracking parameters and UTM tags
-                </h3>
-                <p className="text-muted-foreground">
-                  Separate marketing and analytics parameters like UTM tags, gclid, and fbclid from
-                  essential query parameters. Generate a clean, shareable URL that is easier to read,
-                  better for SEO, and more privacy-friendly.
-                </p>
-              </div>
-              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-                <h3 className="font-medium text-foreground mb-1">
-                  Debug URLs for SEO, analytics, and security
-                </h3>
-                <p className="text-muted-foreground">
-                  Use URL Anatomy as a URL debugger to see exactly how your links are constructed.
-                  Catch broken query strings, duplicated parameters, and incorrect encodings that can
-                  affect analytics accuracy, user experience, and search performance.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="mb-8" aria-labelledby="how-it-works-heading">
-            <h2
-              id="how-it-works-heading"
-              className="text-sm font-medium text-muted-foreground mb-3"
-            >
-              How URL Anatomy works
-            </h2>
-            <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-              <ol className="list-decimal pl-4 space-y-1 text-muted-foreground">
-                <li>Copy a URL, cURL command, or JSON payload from your browser, logs, or API client.</li>
-                <li>Paste it into the input above. The tool automatically detects the format.</li>
-                <li>Review the decoded structure: protocol, host, path segments, query parameters, headers, and body.</li>
-                <li>Edit any path segment, query parameter, header, or JSON field directly in the table views.</li>
-                <li>Copy the updated URL or cURL command back into your workflow when you are done.</li>
-              </ol>
-              <p className="mt-3 text-muted-foreground">
-                For a deeper explanation of JWT debugging, timestamp conversion, and security checks, visit the{' '}
-                <Link href="/learn" className="text-foreground/90 hover:text-foreground underline underline-offset-2">
-                  Learn page
-                </Link>
-                .
-              </p>
-            </div>
-          </section>
-
-          <section className="mb-8" aria-labelledby="homepage-faq-heading">
-            <h2
-              id="homepage-faq-heading"
-              className="text-sm font-medium text-muted-foreground mb-3"
-            >
-              Quick answers
-            </h2>
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-                <h3 className="font-medium text-foreground mb-1">Is my data sent anywhere?</h3>
-                <p className="text-muted-foreground">
-                  No. All decoding and analysis runs in your browser. We do not send, store, or log the URLs, tokens,
-                  or JSON payloads that you paste into the tool.
-                </p>
-              </div>
-              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
-                <h3 className="font-medium text-foreground mb-1">Who is this tool for?</h3>
-                <p className="text-muted-foreground">
-                  URL Anatomy is built for developers, SREs, security engineers, analysts, and marketers who work with
-                  complex URLs, redirects, tracking parameters, and API requests.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="mb-8" aria-labelledby="featured-guides-heading">
-            <h2 id="featured-guides-heading" className="text-sm font-medium text-muted-foreground mb-3">
-              Explore our guides
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <Link
-                href="/learn"
-                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
-              >
-                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-                How to decode JWT securely
-              </Link>
-              <Link
-                href="/learn"
-                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
-              >
-                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-                Understanding URL tracking parameters
-              </Link>
-              <Link
-                href="/learn"
-                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
-              >
-                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-                Timestamp converter & URL decoder
-              </Link>
-            </div>
-          </section>
-
           {parsed && (
             <motion.section initial={false} animate={{ opacity: 1 }} className="space-y-6">
               <article className="rounded-lg border-2 border-border bg-card p-4">
@@ -743,6 +600,149 @@ export default function Home() {
               />
             </motion.section>
           )}
+
+          <section className="mb-8" aria-labelledby="what-you-can-do-heading">
+            <h2
+              id="what-you-can-do-heading"
+              className="text-sm font-medium text-muted-foreground mb-3"
+            >
+              What you can do with URL Anatomy
+            </h2>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">Decode and inspect full URLs</h3>
+                <p className="text-muted-foreground">
+                  Paste any URL to see a structured breakdown of its protocol, host, path, query
+                  string, and fragment. Quickly copy a clean version of your link without unnecessary
+                  query parameters or tracking tags.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">Analyze cURL commands for APIs</h3>
+                <p className="text-muted-foreground">
+                  Drop in a complete cURL command to automatically extract the HTTP method, endpoint
+                  URL, headers, and JSON payload. Edit any part of the request and copy back a valid
+                  command for your API debugging workflow.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">Inspect and beautify JSON payloads</h3>
+                <p className="text-muted-foreground">
+                  Format and explore raw JSON from API responses, webhooks, or logs. Highlight keys
+                  and values to quickly understand nested structures and spot issues in your data.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">
+                  Detect and decode JWTs and timestamps
+                </h3>
+                <p className="text-muted-foreground">
+                  Automatically detect JSON Web Tokens (JWTs) and common timestamp formats embedded
+                  in URLs, headers, or JSON bodies. Decode them locally in your browser to understand
+                  what data is being passed around.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">
+                  Clean tracking parameters and UTM tags
+                </h3>
+                <p className="text-muted-foreground">
+                  Separate marketing and analytics parameters like UTM tags, gclid, and fbclid from
+                  essential query parameters. Generate a clean, shareable URL that is easier to read,
+                  better for SEO, and more privacy-friendly.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">
+                  Debug URLs for SEO, analytics, and security
+                </h3>
+                <p className="text-muted-foreground">
+                  Use URL Anatomy as a URL debugger to see exactly how your links are constructed.
+                  Catch broken query strings, duplicated parameters, and incorrect encodings that can
+                  affect analytics accuracy, user experience, and search performance.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="mb-8" aria-labelledby="how-it-works-heading">
+            <h2
+              id="how-it-works-heading"
+              className="text-sm font-medium text-muted-foreground mb-3"
+            >
+              How URL Anatomy works
+            </h2>
+            <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+              <ol className="list-decimal pl-4 space-y-1 text-muted-foreground">
+                <li>Copy a URL, cURL command, or JSON payload from your browser, logs, or API client.</li>
+                <li>Paste it into the input above. The tool automatically detects the format.</li>
+                <li>Review the decoded structure: protocol, host, path segments, query parameters, headers, and body.</li>
+                <li>Edit any path segment, query parameter, header, or JSON field directly in the table views.</li>
+                <li>Copy the updated URL or cURL command back into your workflow when you are done.</li>
+              </ol>
+              <p className="mt-3 text-muted-foreground">
+                For a deeper explanation of JWT debugging, timestamp conversion, and security checks, visit the{' '}
+                <Link href="/learn" className="text-foreground/90 hover:text-foreground underline underline-offset-2">
+                  Learn page
+                </Link>
+                .
+              </p>
+            </div>
+          </section>
+
+          <section className="mb-8" aria-labelledby="homepage-faq-heading">
+            <h2
+              id="homepage-faq-heading"
+              className="text-sm font-medium text-muted-foreground mb-3"
+            >
+              Quick answers
+            </h2>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">Is my data sent anywhere?</h3>
+                <p className="text-muted-foreground">
+                  No. All decoding and analysis runs in your browser. We do not send, store, or log the URLs, tokens,
+                  or JSON payloads that you paste into the tool.
+                </p>
+              </div>
+              <div className="rounded-lg border-2 border-border bg-card px-4 py-3 text-sm">
+                <h3 className="font-medium text-foreground mb-1">Who is this tool for?</h3>
+                <p className="text-muted-foreground">
+                  URL Anatomy is built for developers, SREs, security engineers, analysts, and marketers who work with
+                  complex URLs, redirects, tracking parameters, and API requests.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="mb-8" aria-labelledby="featured-guides-heading">
+            <h2 id="featured-guides-heading" className="text-sm font-medium text-muted-foreground mb-3">
+              Explore our guides
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <Link
+                href="/learn"
+                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                How to decode JWT securely
+              </Link>
+              <Link
+                href="/learn"
+                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                Understanding URL tracking parameters
+              </Link>
+              <Link
+                href="/learn"
+                className="flex items-center gap-2 rounded-lg border-2 border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                Timestamp converter & URL decoder
+              </Link>
+            </div>
+          </section>
 
           <SeoAccordion />
           <ChangelogSection />
