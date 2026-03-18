@@ -92,6 +92,23 @@ export function JsonFieldRow({
     [onReplaceField, jsonMeta, nestedFields, path, originalFieldTypes, updateNestedValue]
   );
 
+  const handleRemove = useCallback(
+    (index: number) => {
+      if (!onReplaceField || !jsonMeta) return;
+      const parsed = jsonMeta.parsed;
+      if (parsed != null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const entries = Object.entries(parsed as Record<string, unknown>);
+        const filtered = entries.filter((_, i) => i !== index);
+        const updated = Object.fromEntries(filtered);
+        onReplaceField(path, JSON.stringify(updated, null, 2));
+      } else if (Array.isArray(parsed)) {
+        const updated = (parsed as unknown[]).filter((_, i) => i !== index);
+        onReplaceField(path, JSON.stringify(updated, null, 2));
+      }
+    },
+    [onReplaceField, jsonMeta, path]
+  );
+
   const originalChildTypes = useMemo(() => {
     const map = new Map<number, AnalyzedParam['kind']>();
     for (let i = 0; i < nestedFields.length; i++) {
@@ -131,6 +148,7 @@ export function JsonFieldRow({
               params={nestedFields}
               emptyMessage=""
               onReplaceParam={handleReplace}
+              onRemoveParam={handleRemove}
               onReplaceNestedField={(nestedPath, newJson) => {
                 if (!onReplaceField) return;
                 onReplaceField([...path, ...nestedPath], newJson);
