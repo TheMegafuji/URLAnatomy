@@ -11,6 +11,7 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     date: '2026-03-18',
     added: [
       'Payload editor: added a JSON fullscreen viewer with line numbers and type-aware highlighting.',
+      'Payload editor: added a popup action to "Use this URL as input" when a field contains a valid URL.',
     ],
     changed: [
       'Home page: reorganized documentation/FAQ below the input/results with clearer session separation while keeping SEO text always available.',

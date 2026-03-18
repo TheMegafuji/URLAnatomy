@@ -15,6 +15,7 @@ import type { Base64Result } from '@/lib/analyzers/base64';
 import type { JsonResult } from '@/lib/analyzers/json';
 import type { NumberResult } from '@/lib/analyzers/number';
 import type { CurrencyResult } from '@/lib/analyzers/currency';
+import type { ParsedUrl } from '@/lib/analyzers';
 import { detectJson } from '@/lib/analyzers/json';
 import { detectBase64 } from '@/lib/analyzers/base64';
 import { detectJwt } from '@/lib/analyzers/jwt';
@@ -77,6 +78,13 @@ function genTimestamp(meta: TimestampResult | null): string {
   const now = Date.now();
   if (meta?.format === 'seconds') return String(Math.floor(now / 1000));
   if (meta?.format === 'iso') return new Date(now).toISOString();
+  if (meta?.format === 'dmy') {
+    const d = new Date(now);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = String(d.getFullYear());
+    return `${dd}/${mm}/${yyyy}`;
+  }
   return String(now);
 }
 
@@ -555,6 +563,32 @@ function genRequestId(): string {
   return crypto.randomUUID();
 }
 
+function genUrl(_meta: ParsedUrl | null): string {
+  const protocol = rand(['http', 'https']);
+  const hosts = ['api', 'app', 'demo', 'cdn', 'auth', 'www'];
+  const base = 'example.com';
+  const host = `${rand(hosts)}.${base}`;
+
+  const pathLiterals = ['api', 'v1', 'v2', 'users', 'items', 'posts', 'auth', 'webhooks', 'graphql'];
+  const segCount = 1 + Math.floor(Math.random() * 3);
+  const segments: string[] = [];
+  for (let i = 0; i < segCount; i++) segments.push(rand(pathLiterals));
+  const pathname = `/${segments.map((s) => encodeURIComponent(s)).join('/')}`;
+
+  const queryKeys = ['ref', 'utm_source', 'utm_medium', 'page', 'limit', 'cursor', 'lang', 'id'];
+  const pairCount = Math.random() < 0.35 ? 0 : 1 + Math.floor(Math.random() * 3);
+  const queryPairs: string[] = [];
+  for (let i = 0; i < pairCount; i++) {
+    const k = rand(queryKeys);
+    const v = rand(['abc', 'def', 'ghi', 'jkl', '123', 'test', 'pt-BR', 'en', 'es', '1', '2', '3']);
+    queryPairs.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+  }
+  const query = queryPairs.length ? `?${queryPairs.join('&')}` : '';
+
+  const fragment = Math.random() < 0.3 ? `#${rand(['tab', 'section', 'anchor'])}=${rand(['1', '2', '3'])}` : '';
+  return `${protocol}://${host}${pathname}${query}${fragment}`;
+}
+
 function genApiVersion(): string {
   return 'v' + randInt(1, 3);
 }
@@ -581,7 +615,7 @@ function genArn(): string {
   return ['arn', partition, service, region, account, resource].join(':');
 }
 
-const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
+const GEN: Partial<Record<ParamKind, (param: AnalyzedParam) => string>> = {
   timestamp: (p) => genTimestamp(p.meta as TimestampResult | null),
   uuid: (p) => genUuid(p.meta as UuidResult | null),
   jwt: (p) => genJwt(p.meta as JwtResult | null),
@@ -605,6 +639,7 @@ const GEN: Record<ParamKind, (param: AnalyzedParam) => string> = {
   crypto: genCrypto,
   db_connection: genDbConnection,
   uri: genUri,
+  url: (p) => genUrl(p.meta as ParsedUrl | null),
   xss: genXss,
   sqli: genSqli,
   oauth: genOauth,
@@ -695,5 +730,6 @@ export const PARAM_KINDS: ParamKind[] = [
   'alt_id',
   'mac',
   'arn',
+  'url',
   'uri',
 ];

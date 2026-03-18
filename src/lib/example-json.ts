@@ -47,6 +47,7 @@ const JSON_KEYS: Record<ParamKind, string[]> = {
   alt_id: ['id', 'ulid', 'objectId', 'nanoid'],
   mac: ['mac', 'device_id'],
   arn: ['resource', 'arn', 'resource_arn'],
+  url: ['url', 'link', 'destination'],
 };
 
 function rand<T>(a: T[]): T {

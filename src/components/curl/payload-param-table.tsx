@@ -64,6 +64,7 @@ function ParamTableRow({
   onCommitEdit,
   onCancelEdit,
   originalKind,
+  onUseUrlAsInput,
 }: {
   param: AnalyzedParam;
   index: number;
@@ -77,6 +78,7 @@ function ParamTableRow({
   onCommitEdit: (index: number) => void;
   onCancelEdit: () => void;
   originalKind?: ParamKind;
+  onUseUrlAsInput?: (url: string) => void;
 }) {
   const isEditing = editingIndex === index;
   const isMobile = useIsMobile();
@@ -102,7 +104,7 @@ function ParamTableRow({
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
         Translation / detail
       </p>
-      <ParamDetail param={param} />
+      <ParamDetail param={param} onUseUrlAsInput={onUseUrlAsInput} />
     </div>
   );
 
@@ -224,6 +226,7 @@ export function PayloadParamTable({
   onRemoveParam,
   onReplaceNestedField,
   originalFieldTypes,
+  onUseUrlAsInput,
 }: {
   params: AnalyzedParam[];
   emptyMessage?: string;
@@ -231,6 +234,7 @@ export function PayloadParamTable({
   onRemoveParam?: (index: number) => void;
   onReplaceNestedField?: (path: string[], newJson: string) => void;
   originalFieldTypes: Map<number, ParamKind>;
+  onUseUrlAsInput?: (url: string) => void;
 }) {
   const [sheetParam, setSheetParam] = useState<AnalyzedParam | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -317,12 +321,18 @@ export function PayloadParamTable({
                 onCommitEdit={handleCommitEdit}
                 onCancelEdit={handleCancelEdit}
                 originalKind={originalFieldTypes.get(i)}
+                onUseUrlAsInput={onUseUrlAsInput}
               />
             );
           })}
         </tbody>
       </table>
-      <DetailSheet param={sheetParam} open={sheetOpen} onClose={() => setSheetOpen(false)} />
+      <DetailSheet
+        param={sheetParam}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onUseUrlAsInput={onUseUrlAsInput}
+      />
     </>
   );
 }

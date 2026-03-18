@@ -11,10 +11,12 @@ export function DetailSheet({
   param,
   open,
   onClose,
+  onUseUrlAsInput,
 }: {
   param: AnalyzedParam | null;
   open: boolean;
   onClose: () => void;
+  onUseUrlAsInput?: (url: string) => void;
 }) {
   useEffect(() => {
     if (!open) return;
@@ -53,7 +55,17 @@ export function DetailSheet({
               </Button>
             </div>
             <div className="overflow-y-auto p-4 max-h-[calc(85vh-52px)]">
-              <ParamDetail param={param} />
+              <ParamDetail
+                param={param}
+                onUseUrlAsInput={
+                  onUseUrlAsInput
+                    ? (url) => {
+                        onUseUrlAsInput(url);
+                        onClose();
+                      }
+                    : undefined
+                }
+              />
             </div>
           </motion.div>
         </>

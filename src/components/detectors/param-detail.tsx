@@ -24,6 +24,7 @@ import { PhoneView } from './phone-view';
 import { LocaleView } from './locale-view';
 import { SemverView } from './semver-view';
 import { UriView } from './uri-view';
+import { UrlView } from './url-view';
 import { OauthView } from './oauth-view';
 import { DomainView } from './domain-view';
 import { BooleanView } from './boolean-view';
@@ -94,11 +95,22 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
   alt_id: (p) => <AltIdView meta={p.meta} />,
   mac: (p) => <MacView meta={p.meta} />,
   arn: (p) => <ArnView meta={p.meta} />,
+  url: (p) => <UrlView meta={p.meta} />,
   uri: (p) => <UriView decoded={p.decoded} />,
 };
 
-export function ParamDetail({ param }: { param: AnalyzedParam }) {
-  const renderView = PARAM_VIEWS[param.kind];
+export function ParamDetail({
+  param,
+  onUseUrlAsInput,
+}: {
+  param: AnalyzedParam;
+  onUseUrlAsInput?: (url: string) => void;
+}) {
+  const renderView: ViewRenderer =
+    param.kind === 'url'
+      ? (p) => <UrlView meta={p.meta} onUseUrlAsInput={onUseUrlAsInput} />
+      : PARAM_VIEWS[param.kind];
+
   return (
     <div className="font-mono text-xs space-y-2">
       {param.encodingIssue && (

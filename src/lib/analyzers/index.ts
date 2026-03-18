@@ -44,6 +44,7 @@ import { detectMac } from './mac';
 import { detectArn } from './arn';
 import { detectEncodingIssue } from './encoding-issue';
 import type { ParsedUrl } from './url-parse';
+import { detectUrl } from './url';
 
 export type ParamKind =
   | 'timestamp'
@@ -90,6 +91,7 @@ export type ParamKind =
   | 'alt_id'
   | 'mac'
   | 'arn'
+  | 'url'
   | 'uri';
 
 export interface EncodingIssueResult {
@@ -181,6 +183,8 @@ export function analyzeParam(key: string, value: string): AnalyzedParam {
   if (currency) return withEncodingIssue({ key, value, decoded, kind: 'currency', meta: currency }, value, decoded);
   const phone = detectPhone(decoded);
   if (phone) return withEncodingIssue({ key, value, decoded, kind: 'phone', meta: phone }, value, decoded);
+  const url = detectUrl(decoded);
+  if (url) return withEncodingIssue({ key, value, decoded, kind: 'url', meta: url }, value, decoded);
   const locale = detectLocale(decoded);
   if (locale) return withEncodingIssue({ key, value, decoded, kind: 'locale', meta: locale }, value, decoded);
   const semver = detectSemver(decoded);

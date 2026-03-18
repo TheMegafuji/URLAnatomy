@@ -62,6 +62,7 @@ function ParamTableRow({
   onEditChange,
   onCommitEdit,
   onCancelEdit,
+  onUseUrlAsInput,
 }: {
   param: AnalyzedParam;
   index: number;
@@ -74,6 +75,7 @@ function ParamTableRow({
   onEditChange: (value: string) => void;
   onCommitEdit: (index: number) => void;
   onCancelEdit: () => void;
+  onUseUrlAsInput?: (url: string) => void;
 }) {
   const isEditing = editingIndex === index;
   const isMobile = useIsMobile();
@@ -98,7 +100,7 @@ function ParamTableRow({
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
         Translation / detail
       </p>
-      <ParamDetail param={param} />
+      <ParamDetail param={param} onUseUrlAsInput={onUseUrlAsInput} />
     </div>
   );
 
@@ -213,11 +215,13 @@ export function ParamTable({
   emptyMessage = 'No parameters',
   onReplaceParam,
   onRemoveParam,
+  onUseUrlAsInput,
 }: {
   params: AnalyzedParam[];
   emptyMessage?: string;
   onReplaceParam?: (index: number, newValue: string) => void;
   onRemoveParam?: (index: number) => void;
+  onUseUrlAsInput?: (url: string) => void;
 }) {
   const [sheetParam, setSheetParam] = useState<AnalyzedParam | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -278,11 +282,17 @@ export function ParamTable({
               onEditChange={setEditValue}
               onCommitEdit={handleCommitEdit}
               onCancelEdit={handleCancelEdit}
+              onUseUrlAsInput={onUseUrlAsInput}
             />
           ))}
         </tbody>
       </table>
-      <DetailSheet param={sheetParam} open={sheetOpen} onClose={() => setSheetOpen(false)} />
+      <DetailSheet
+        param={sheetParam}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onUseUrlAsInput={onUseUrlAsInput}
+      />
     </>
   );
 }

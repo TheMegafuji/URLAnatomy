@@ -168,6 +168,17 @@ export default function Home() {
   const [hasModifiedUrl, setHasModifiedUrl] = useState(false);
   const [hasModifiedCurl, setHasModifiedCurl] = useState(false);
 
+  const onUseUrlAsInput = useCallback(
+    (url: string) => {
+      setSkipNextAnalysis(true);
+      setHasModifiedUrl(true);
+      setHasModifiedCurl(false);
+      setInput(url);
+      runAnalysis(url);
+    },
+    [runAnalysis]
+  );
+
   const onReplaceHeader = useCallback(
     (index: number, newValue: string) => {
       if (!curlMeta) return;
@@ -511,6 +522,7 @@ export default function Home() {
                 <PayloadEditor
                   payload={curlPayload}
                   onReplace={onReplacePayload}
+                  onUseUrlAsInput={onUseUrlAsInput}
                 />
               )}
 
@@ -553,6 +565,7 @@ export default function Home() {
                               params={analysis?.pathParams ?? []}
                               emptyMessage="No path segments"
                               onReplaceParam={onReplacePathSegment}
+                              onUseUrlAsInput={onUseUrlAsInput}
                             />
                           </div>
                         </div>
@@ -573,6 +586,7 @@ export default function Home() {
                       emptyMessage="No query params"
                       onReplaceParam={onReplaceQueryParam}
                       onRemoveParam={onRemoveQueryParam}
+                      onUseUrlAsInput={onUseUrlAsInput}
                     />
                   </div>
                 </article>
@@ -597,6 +611,7 @@ export default function Home() {
                 payload={standaloneJsonPayload}
                 onReplace={onReplaceStandaloneJson}
                 title="JSON"
+                onUseUrlAsInput={onUseUrlAsInput}
               />
             </motion.section>
           )}

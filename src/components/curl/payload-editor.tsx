@@ -19,9 +19,15 @@ interface PayloadEditorProps {
   };
   onReplace: (newPayload: string) => void;
   title?: string;
+  onUseUrlAsInput?: (url: string) => void;
 }
 
-export function PayloadEditor({ payload, onReplace, title = 'Payload' }: PayloadEditorProps) {
+export function PayloadEditor({
+  payload,
+  onReplace,
+  title = 'Payload',
+  onUseUrlAsInput,
+}: PayloadEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(payload.raw);
   const [originalFieldTypes, setOriginalFieldTypes] = useState<Map<number, AnalyzedParam['kind']>>(new Map());
@@ -320,6 +326,7 @@ export function PayloadEditor({ payload, onReplace, title = 'Payload' }: Payload
                   onRemoveParam={handleRemoveField}
                   onReplaceNestedField={handleReplaceNestedField}
                   originalFieldTypes={originalFieldTypes}
+                  onUseUrlAsInput={onUseUrlAsInput}
                 />
               </div>
             </div>

@@ -50,6 +50,7 @@ const variants: Record<BadgeVariant, string> = {
   alt_id: 'border-transparent bg-cyan-500/20 text-cyan-400',
   mac: 'border-transparent bg-teal-500/20 text-teal-400',
   arn: 'border-transparent bg-amber-500/20 text-amber-400',
+  url: 'border-transparent bg-violet-500/20 text-violet-400',
   uri: 'border-transparent bg-muted text-muted-foreground',
 };
 

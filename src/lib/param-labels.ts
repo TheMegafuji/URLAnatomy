@@ -45,5 +45,6 @@ export const BADGE_LABEL: Record<AnalyzedParam['kind'], string> = {
   alt_id: 'Alt ID',
   mac: 'MAC address',
   arn: 'ARN',
+  url: 'URL',
   uri: 'URI',
 };

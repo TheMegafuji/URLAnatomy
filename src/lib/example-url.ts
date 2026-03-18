@@ -74,6 +74,7 @@ const PARAM_NAMES: Record<ParamKind, string[]> = {
   alt_id: ['id', 'ulid', 'objectId', 'nanoid'],
   mac: ['mac', 'device_id', 'hwaddr'],
   arn: ['resource', 'arn', 'resource_arn'],
+  url: ['url', 'link', 'destination'],
 };
 
 const PATH_KINDS: ParamKind[] = ['uuid', 'timestamp', 'api_version'];
