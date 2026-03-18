@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-03-18',
+    added: [
+      'Payload editor: implemented a JSON fullscreen viewer with line numbers and type-aware highlighting for enhanced JSON visualization.',
+    ],
+  },
+  {
     date: '2026-03-16',
     added: [
       'Expanded Learn page content with detailed guides on how to use URL Anatomy, JWT debugging, timestamp conversion, and URL security reviews.',

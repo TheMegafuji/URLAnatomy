@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { Pencil, Check, X, Dices } from 'lucide-react';
+import { Pencil, Check, X, Dices, Maximize2 } from 'lucide-react';
 import { CopyButton } from '@/components/ui/copy-button';
 import { Textarea } from '@/components/ui/textarea';
 import { PayloadParamTable } from './payload-param-table';
 import { detectJson, analyzeParam } from '@/lib/analyzers';
 import { generateValue } from '@/lib/generators';
 import { JsonSyntaxHighlight } from './json-syntax-highlight';
+import { JsonFullscreenViewer } from './json-fullscreen-viewer';
 import type { AnalyzedParam, ParamKind } from '@/lib/analyzers';
 
 interface PayloadEditorProps {
@@ -24,6 +25,7 @@ export function PayloadEditor({ payload, onReplace, title = 'Payload' }: Payload
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(payload.raw);
   const [originalFieldTypes, setOriginalFieldTypes] = useState<Map<number, AnalyzedParam['kind']>>(new Map());
+  const [isJsonFullscreenOpen, setIsJsonFullscreenOpen] = useState(false);
 
   useEffect(() => {
     setEditValue(payload.raw);
@@ -219,6 +221,15 @@ export function PayloadEditor({ payload, onReplace, title = 'Payload' }: Payload
             <CopyButton text={displayJson.formatted} aria-label="Copy formatted JSON" />
             <button
               type="button"
+              onClick={() => setIsJsonFullscreenOpen(true)}
+              className="inline-flex items-center justify-center rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Open fullscreen viewer"
+              aria-label="Open fullscreen viewer"
+            >
+              <Maximize2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
               onClick={handleStartEdit}
               className="inline-flex items-center justify-center rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               title="Edit JSON"
@@ -288,6 +299,13 @@ export function PayloadEditor({ payload, onReplace, title = 'Payload' }: Payload
             <pre className="overflow-x-auto rounded bg-muted/50 p-3 font-mono text-xs whitespace-pre-wrap break-all border border-border max-h-64 overflow-y-auto">
               {payload.raw}
             </pre>
+          )}
+          {displayJson && (
+            <JsonFullscreenViewer
+              open={isJsonFullscreenOpen}
+              json={displayJson.formatted}
+              onClose={() => setIsJsonFullscreenOpen(false)}
+            />
           )}
           {displayFields.length > 0 && (
             <div>
