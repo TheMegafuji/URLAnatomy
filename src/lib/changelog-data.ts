@@ -10,7 +10,10 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
     date: '2026-03-18',
     added: [
-      'Payload editor: implemented a JSON fullscreen viewer with line numbers and type-aware highlighting for enhanced JSON visualization.',
+      'Payload editor: added a JSON fullscreen viewer with line numbers and type-aware highlighting.',
+    ],
+    changed: [
+      'Home page: reorganized documentation/FAQ below the input/results with clearer session separation while keeping SEO text always available.',
     ],
   },
   {
