@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-05-05',
+    added: [
+      'Payload editor: optional "Structure sample" view that collapses multi-element arrays recursively to a single representative item for lighter copy-paste (e.g. for LLMs) while keeping the full JSON when the option is off.',
+    ],
+  },
+  {
     date: '2026-03-18',
     added: [
       'Payload editor: added a JSON fullscreen viewer with line numbers and type-aware highlighting.',

@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { PayloadParamTable } from './payload-param-table';
 import { detectJson, analyzeParam } from '@/lib/analyzers';
 import { generateValue } from '@/lib/generators';
+import { transformJsonForStructureSample } from '@/lib/json-structure-sample';
 import { JsonSyntaxHighlight } from './json-syntax-highlight';
 import { JsonFullscreenViewer } from './json-fullscreen-viewer';
 import type { AnalyzedParam, ParamKind } from '@/lib/analyzers';
@@ -32,6 +33,11 @@ export function PayloadEditor({
   const [editValue, setEditValue] = useState(payload.raw);
   const [originalFieldTypes, setOriginalFieldTypes] = useState<Map<number, AnalyzedParam['kind']>>(new Map());
   const [isJsonFullscreenOpen, setIsJsonFullscreenOpen] = useState(false);
+  const [showStructureSample, setShowStructureSample] = useState(false);
+
+  useEffect(() => {
+    setShowStructureSample(false);
+  }, [payload.raw]);
 
   useEffect(() => {
     setEditValue(payload.raw);
@@ -218,13 +224,38 @@ export function PayloadEditor({
   const displayJson = isEditing ? currentJson : payload.json;
   const displayFields = isEditing ? currentFields : payload.fields;
 
+  const structureSample = useMemo(() => {
+    if (!displayJson?.valid) return null;
+    return transformJsonForStructureSample(displayJson.parsed);
+  }, [displayJson]);
+
+  const canShrinkStructure = structureSample?.applicable ?? false;
+
+  const structureSampleFormatted = useMemo(() => {
+    if (!structureSample?.applicable) return null;
+    return JSON.stringify(structureSample.reduced, null, 2);
+  }, [structureSample]);
+
+  const visibleJsonText = useMemo(() => {
+    if (!displayJson?.formatted) return '';
+    if (showStructureSample && canShrinkStructure && structureSampleFormatted) {
+      return structureSampleFormatted;
+    }
+    return displayJson.formatted;
+  }, [
+    displayJson,
+    showStructureSample,
+    canShrinkStructure,
+    structureSampleFormatted,
+  ]);
+
   return (
     <article className="rounded-lg border-2 border-border bg-card p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-muted-foreground">{title}</h2>
         {!isEditing && displayJson && (
           <div className="flex items-center gap-2">
-            <CopyButton text={displayJson.formatted} aria-label="Copy formatted JSON" />
+            <CopyButton text={visibleJsonText} aria-label="Copy formatted JSON" />
             <button
               type="button"
               onClick={() => setIsJsonFullscreenOpen(true)}
@@ -297,9 +328,25 @@ export function PayloadEditor({
         </div>
       ) : (
         <>
+          {displayJson && canShrinkStructure && (
+            <div className="flex items-center gap-2">
+              <label
+                className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted-foreground select-none"
+                title="Keeps one element per array (recursively) so the shape stays clear for sharing with an LLM or documentation, without large repeated payloads."
+              >
+                <input
+                  type="checkbox"
+                  checked={showStructureSample}
+                  onChange={(e) => setShowStructureSample(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded border border-border bg-background text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                />
+                <span>Structure sample</span>
+              </label>
+            </div>
+          )}
           {displayJson ? (
             <pre className="overflow-x-auto rounded bg-muted/50 p-3 font-mono text-xs whitespace-pre break-all border border-border max-h-64 overflow-y-auto">
-              <JsonSyntaxHighlight json={displayJson.formatted} />
+              <JsonSyntaxHighlight json={visibleJsonText} />
             </pre>
           ) : (
             <pre className="overflow-x-auto rounded bg-muted/50 p-3 font-mono text-xs whitespace-pre-wrap break-all border border-border max-h-64 overflow-y-auto">
@@ -309,7 +356,7 @@ export function PayloadEditor({
           {displayJson && (
             <JsonFullscreenViewer
               open={isJsonFullscreenOpen}
-              json={displayJson.formatted}
+              json={visibleJsonText}
               onClose={() => setIsJsonFullscreenOpen(false)}
             />
           )}
