@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { Pencil, Check, X, Dices, Maximize2 } from 'lucide-react';
+import { useState, useCallback, useEffect, useMemo, useDeferredValue } from 'react';
+import { Pencil, Check, X, Dices, Maximize2, Loader2 } from 'lucide-react';
 import { CopyButton } from '@/components/ui/copy-button';
 import { Textarea } from '@/components/ui/textarea';
 import { PayloadParamTable } from './payload-param-table';
@@ -11,6 +11,20 @@ import { transformJsonForStructureSample } from '@/lib/json-structure-sample';
 import { JsonSyntaxHighlight } from './json-syntax-highlight';
 import { JsonFullscreenViewer } from './json-fullscreen-viewer';
 import type { AnalyzedParam, ParamKind } from '@/lib/analyzers';
+
+function buildAnalyzedFieldsFromParsed(value: unknown): AnalyzedParam[] {
+  if (value != null && typeof value === 'object' && !Array.isArray(value)) {
+    return Object.entries(value as Record<string, unknown>).map(([key, v]) =>
+      analyzeParam(key, typeof v === 'string' ? v : JSON.stringify(v))
+    );
+  }
+  if (Array.isArray(value)) {
+    return (value as unknown[]).map((v, index) =>
+      analyzeParam(String(index), typeof v === 'string' ? v : JSON.stringify(v))
+    );
+  }
+  return [];
+}
 
 interface PayloadEditorProps {
   payload: {
@@ -53,19 +67,7 @@ export function PayloadEditor({
   const currentJson = useMemo(() => detectJson(editValue), [editValue]);
   const currentFields = useMemo(() => {
     if (!currentJson || !currentJson.valid) return [];
-    const value = currentJson.parsed;
-    if (value != null && typeof value === 'object' && !Array.isArray(value)) {
-      const entries = Object.entries(value as Record<string, unknown>);
-      return entries.map(([key, v]) =>
-        analyzeParam(key, typeof v === 'string' ? v : JSON.stringify(v))
-      );
-    }
-    if (Array.isArray(value)) {
-      return (value as unknown[]).map((v, index) =>
-        analyzeParam(String(index), typeof v === 'string' ? v : JSON.stringify(v))
-      );
-    }
-    return [];
+    return buildAnalyzedFieldsFromParsed(currentJson.parsed);
   }, [currentJson]);
 
   const handleStartEdit = useCallback(() => {
@@ -222,7 +224,6 @@ export function PayloadEditor({
   }, [payload, onReplace, generateAllRecursive]);
 
   const displayJson = isEditing ? currentJson : payload.json;
-  const displayFields = isEditing ? currentFields : payload.fields;
 
   const structureSample = useMemo(() => {
     if (!displayJson?.valid) return null;
@@ -249,6 +250,26 @@ export function PayloadEditor({
     structureSampleFormatted,
   ]);
 
+  const parsedForFieldsTarget = useMemo(() => {
+    if (!displayJson?.valid) return null;
+    if (showStructureSample && canShrinkStructure && structureSample?.applicable) {
+      return structureSample.reduced;
+    }
+    return displayJson.parsed;
+  }, [displayJson, showStructureSample, canShrinkStructure, structureSample]);
+
+  const deferredParsedForFields = useDeferredValue(parsedForFieldsTarget);
+  const fieldsListDeferredStale =
+    parsedForFieldsTarget !== null &&
+    deferredParsedForFields !== null &&
+    deferredParsedForFields !== parsedForFieldsTarget;
+
+  const displayFields = useMemo(() => {
+    if (isEditing) return currentFields;
+    if (!deferredParsedForFields) return [];
+    return buildAnalyzedFieldsFromParsed(deferredParsedForFields);
+  }, [isEditing, currentFields, deferredParsedForFields]);
+
   return (
     <article className="rounded-lg border-2 border-border bg-card p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -273,7 +294,7 @@ export function PayloadEditor({
             >
               <Pencil className="h-3.5 w-3.5" />
             </button>
-            {displayFields.length > 0 && (
+            {payload.fields.length > 0 && (
               <button
                 type="button"
                 onClick={handleGenerateAll}
@@ -360,12 +381,22 @@ export function PayloadEditor({
               onClose={() => setIsJsonFullscreenOpen(false)}
             />
           )}
-          {displayFields.length > 0 && (
+          {(displayFields.length > 0 || fieldsListDeferredStale) && (
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs font-medium text-muted-foreground">Detected fields</span>
               </div>
-              <div className="rounded-lg border-2 border-border overflow-hidden">
+              <div className="relative rounded-lg border-2 border-border overflow-hidden">
+                {fieldsListDeferredStale && (
+                  <div
+                    className="absolute inset-0 z-10 flex items-center justify-center gap-2 bg-background/70 backdrop-blur-sm text-sm text-muted-foreground"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" aria-hidden />
+                    <span>Updating detected fields…</span>
+                  </div>
+                )}
                 <PayloadParamTable
                   params={displayFields}
                   emptyMessage="No fields"

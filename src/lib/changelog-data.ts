@@ -15,6 +15,7 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     ],
     changed: [
       'Payload editor: "Structure sample" is enabled by default for JSON that can be collapsed.',
+      'Payload editor: detected fields follow the structure sample when it is on, and show a short loading overlay while the full field list is reconciled after turning the sample off.',
     ],
   },
   {
