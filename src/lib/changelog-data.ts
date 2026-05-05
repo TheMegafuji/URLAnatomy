@@ -11,6 +11,10 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     date: '2026-05-05',
     added: [
       'Payload editor: optional "Structure sample" view that collapses multi-element arrays recursively to a single representative item for lighter copy-paste (e.g. for LLMs) while keeping the full JSON when the option is off.',
+      'Home: an inline analyzing state below the main input while debounced analysis runs, with motion and styling aligned to the rest of the UI.',
+    ],
+    changed: [
+      'Payload editor: "Structure sample" is enabled by default for JSON that can be collapsed.',
     ],
   },
   {

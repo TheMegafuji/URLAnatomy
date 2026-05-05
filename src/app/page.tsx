@@ -6,7 +6,7 @@ import { BookOpen, ChevronDown, ChevronRight, ClipboardPaste, Dices, Github, Shi
 import { parseUrl, analyzeParsedUrl, analyzeParam, detectJson } from '@/lib/analyzers';
 import { parseCurl } from '@/lib/curl-parse';
 import { buildCurl } from '@/lib/curl-build';
-import { debounce, extractFirstUrl } from '@/lib/utils';
+import { extractFirstUrl } from '@/lib/utils';
 import { extractJsonFromInput } from '@/lib/json-extract';
 import { generateExampleUrl } from '@/lib/example-url';
 import { generateExampleJson } from '@/lib/example-json';
@@ -24,12 +24,14 @@ import { Footer } from '@/components/footer';
 import { SeoAccordion } from '@/components/seo/SeoAccordion';
 import { ChangelogSection } from '@/components/changelog-section';
 import { PayloadEditor } from '@/components/curl/payload-editor';
+import { InputAnalysisLoading } from '@/components/input-analysis-loading';
 import Link from 'next/link';
 
 const DEBOUNCE_MS = 300;
 
 export default function Home() {
   const [input, setInput] = useState('');
+  const [inputAnalysisPending, setInputAnalysisPending] = useState(false);
   const [parsed, setParsed] = useState<ReturnType<typeof parseUrl>>(null);
   const [curlMeta, setCurlMeta] = useState<{
     method: string;
@@ -143,16 +145,43 @@ export default function Home() {
     }
   }, []);
 
-  const debouncedRun = useMemo(() => debounce(runAnalysis, DEBOUNCE_MS), [runAnalysis]);
   const [skipNextAnalysis, setSkipNextAnalysis] = useState(false);
+
+  const runAnalysisAfterPaint = useCallback(
+    (value: string) => {
+      setInputAnalysisPending(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          runAnalysis(value);
+          setInputAnalysisPending(false);
+        });
+      });
+    },
+    [runAnalysis]
+  );
 
   useEffect(() => {
     if (skipNextAnalysis) {
       setSkipNextAnalysis(false);
       return;
     }
-    debouncedRun(input);
-  }, [input, debouncedRun, skipNextAnalysis]);
+    const trimmed = input.trim();
+    if (!trimmed) {
+      runAnalysis('');
+      setInputAnalysisPending(false);
+      return;
+    }
+    setInputAnalysisPending(true);
+    const id = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          runAnalysis(input);
+          setInputAnalysisPending(false);
+        });
+      });
+    }, DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [input, skipNextAnalysis, runAnalysis]);
 
   useEffect(() => {
     if (analysis?.hasJwt && typeof document !== 'undefined')
@@ -174,9 +203,9 @@ export default function Home() {
       setHasModifiedUrl(true);
       setHasModifiedCurl(false);
       setInput(url);
-      runAnalysis(url);
+      runAnalysisAfterPaint(url);
     },
-    [runAnalysis]
+    [runAnalysisAfterPaint]
   );
 
   const onReplaceHeader = useCallback(
@@ -240,11 +269,11 @@ export default function Home() {
         const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
         const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
         setInput(nextUrl);
-        runAnalysis(nextUrl);
+        runAnalysisAfterPaint(nextUrl);
         setHasModifiedUrl(true);
       }
     },
-    [parsed, input, runAnalysis, curlMeta]
+    [parsed, input, runAnalysisAfterPaint, curlMeta]
   );
 
   const onReplaceQueryParam = useCallback(
@@ -266,11 +295,11 @@ export default function Home() {
         const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
         const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
         setInput(nextUrl);
-        runAnalysis(nextUrl);
+        runAnalysisAfterPaint(nextUrl);
         setHasModifiedUrl(true);
       }
     },
-    [parsed, input, runAnalysis, curlMeta]
+    [parsed, input, runAnalysisAfterPaint, curlMeta]
   );
 
   const onRemoveQueryParam = useCallback(
@@ -291,11 +320,11 @@ export default function Home() {
         const hasProtocol = input.trim().startsWith('http://') || input.trim().startsWith('https://');
         const nextUrl = hasProtocol ? built : built.replace(/^https?:\/\//i, '');
         setInput(nextUrl);
-        runAnalysis(nextUrl);
+        runAnalysisAfterPaint(nextUrl);
         setHasModifiedUrl(true);
       }
     },
-    [parsed, input, runAnalysis, curlMeta]
+    [parsed, input, runAnalysisAfterPaint, curlMeta]
   );
 
   const handlePasteFromClipboard = useCallback(async () => {
@@ -429,6 +458,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
+            <InputAnalysisLoading visible={inputAnalysisPending} />
             <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
               <button
                 type="button"

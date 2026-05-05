@@ -33,10 +33,10 @@ export function PayloadEditor({
   const [editValue, setEditValue] = useState(payload.raw);
   const [originalFieldTypes, setOriginalFieldTypes] = useState<Map<number, AnalyzedParam['kind']>>(new Map());
   const [isJsonFullscreenOpen, setIsJsonFullscreenOpen] = useState(false);
-  const [showStructureSample, setShowStructureSample] = useState(false);
+  const [showStructureSample, setShowStructureSample] = useState(true);
 
   useEffect(() => {
-    setShowStructureSample(false);
+    setShowStructureSample(true);
   }, [payload.raw]);
 
   useEffect(() => {
