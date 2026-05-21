@@ -10,6 +10,10 @@ import { generateValue } from '@/lib/generators';
 import { transformJsonForStructureSample } from '@/lib/json-structure-sample';
 import { JsonSyntaxHighlight } from './json-syntax-highlight';
 import { JsonFullscreenViewer } from './json-fullscreen-viewer';
+import {
+  StructureSampleControlBar,
+  useStructureSampleIntroNotice,
+} from './structure-sample-notice';
 import type { AnalyzedParam, ParamKind } from '@/lib/analyzers';
 
 function buildAnalyzedFieldsFromParsed(value: unknown): AnalyzedParam[] {
@@ -270,6 +274,16 @@ export function PayloadEditor({
     return buildAnalyzedFieldsFromParsed(deferredParsedForFields);
   }, [isEditing, currentFields, deferredParsedForFields]);
 
+  const showReducedJsonNotice =
+    !isEditing && Boolean(displayJson) && canShrinkStructure && showStructureSample;
+
+  const { showIntro: showStructureSampleIntro } = useStructureSampleIntroNotice(
+    showReducedJsonNotice,
+    payload.raw
+  );
+
+  const structureSampleCheckboxId = 'structure-sample-toggle';
+
   return (
     <article className="rounded-lg border-2 border-border bg-card p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -350,20 +364,14 @@ export function PayloadEditor({
       ) : (
         <>
           {displayJson && canShrinkStructure && (
-            <div className="flex items-center gap-2">
-              <label
-                className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted-foreground select-none"
-                title="Keeps one element per array (recursively) so the shape stays clear for sharing with an LLM or documentation, without large repeated payloads."
-              >
-                <input
-                  type="checkbox"
-                  checked={showStructureSample}
-                  onChange={(e) => setShowStructureSample(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border border-border bg-background text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                />
-                <span>Structure sample</span>
-              </label>
-            </div>
+            <StructureSampleControlBar
+              checkboxId={structureSampleCheckboxId}
+              checked={showStructureSample}
+              onCheckedChange={setShowStructureSample}
+              onViewFull={() => setShowStructureSample(false)}
+              showIntroNotice={showReducedJsonNotice && showStructureSampleIntro}
+              highlightControl={showReducedJsonNotice && showStructureSampleIntro}
+            />
           )}
           {displayJson ? (
             <pre className="overflow-x-auto rounded bg-muted/50 p-3 font-mono text-xs whitespace-pre break-all border border-border max-h-64 overflow-y-auto">

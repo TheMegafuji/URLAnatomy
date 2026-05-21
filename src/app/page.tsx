@@ -125,20 +125,21 @@ export default function Home() {
       }
     } else {
       setCurlMeta(null);
-      const urlResult = parseUrl(trimmed);
-      if (urlResult) {
-        setStandaloneJson(null);
-        setParsed(urlResult);
-      } else {
+      const json = detectJson(trimmed);
+      if (json?.valid) {
         setParsed(null);
-        const json = detectJson(trimmed);
-        if (json?.valid) {
-          setStandaloneJson(json.formatted);
-          if (trimmed !== json.formatted) {
-            setSkipNextAnalysis(true);
-            setInput(json.formatted);
-          }
+        setStandaloneJson(json.formatted);
+        if (trimmed !== json.formatted) {
+          setSkipNextAnalysis(true);
+          setInput(json.formatted);
+        }
+      } else {
+        const urlResult = parseUrl(trimmed);
+        if (urlResult) {
+          setStandaloneJson(null);
+          setParsed(urlResult);
         } else {
+          setParsed(null);
           setStandaloneJson(null);
         }
       }

@@ -1,3 +1,5 @@
+import { isJsonLikeInput, isPlausibleParsedUrl } from '@/lib/json-like';
+
 export interface ParsedUrl {
   raw: string;
   decoded: string;
@@ -12,7 +14,7 @@ export interface ParsedUrl {
 
 export function parseUrl(input: string): ParsedUrl | null {
   const raw = input.trim();
-  if (!raw) return null;
+  if (!raw || isJsonLikeInput(raw)) return null;
   let toParse = raw;
   if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(toParse)) toParse = 'https://' + toParse;
   try {
@@ -24,6 +26,7 @@ export function parseUrl(input: string): ParsedUrl | null {
       return placeholder;
     });
     const url = new URL(testUrl);
+    if (!isPlausibleParsedUrl(url)) return null;
     let finalRaw = url.href;
     placeholderMap.forEach(({ placeholder, original }) => {
       finalRaw = finalRaw.replace(placeholder, original);

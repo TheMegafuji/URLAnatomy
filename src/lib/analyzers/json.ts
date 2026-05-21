@@ -1,4 +1,15 @@
-import { extractJsonFromInput } from '@/lib/json-extract';
+import { extractJsonFromInput, unwrapPayloadObject } from '@/lib/json-extract';
+
+function jsonResult(v: string, parsed: unknown): JsonResult {
+  const unwrapped = unwrapPayloadObject(parsed);
+  return {
+    type: 'json',
+    parsed: unwrapped,
+    formatted: JSON.stringify(unwrapped, null, 2),
+    raw: v,
+    valid: true,
+  };
+}
 
 export interface JsonResult {
   type: 'json';
@@ -13,34 +24,14 @@ export function detectJson(value: string): JsonResult | null {
   if (!v) return null;
   if (v[0] === '{' || v[0] === '[') {
     try {
-      const parsed = JSON.parse(v);
-      return {
-        type: 'json',
-        parsed,
-        formatted: JSON.stringify(parsed, null, 2),
-        raw: v,
-        valid: true,
-      };
+      return jsonResult(v, JSON.parse(v));
     } catch {
       const extracted = extractJsonFromInput(v);
-      if (extracted)
-        return {
-          type: 'json',
-          parsed: extracted.parsed,
-          formatted: extracted.normalized,
-          raw: v,
-          valid: true,
-        };
+      if (extracted) return jsonResult(v, extracted.parsed);
       return null;
     }
   }
   const extracted = extractJsonFromInput(v);
   if (!extracted) return null;
-  return {
-    type: 'json',
-    parsed: extracted.parsed,
-    formatted: extracted.normalized,
-    raw: v,
-    valid: true,
-  };
+  return jsonResult(v, extracted.parsed);
 }

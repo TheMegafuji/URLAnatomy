@@ -8,6 +8,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-05-21',
+    fixed: [
+      'JSON vs URL detection: JSON pasted in the main input (including SQL-wrapped export blobs) is analyzed as JSON instead of being coerced into a URL; record arrays and stringified nested JSON are unwrapped for display.',
+    ],
+    changed: [
+      'Payload editor: compact timed intro notice beside the Structure sample control when viewing reduced JSON; hover the control or use the info button for details afterward.',
+    ],
+  },
+  {
     date: '2026-05-05',
     added: [
       'Payload editor: optional "Structure sample" view that collapses multi-element arrays recursively to a single representative item for lighter copy-paste (e.g. for LLMs) while keeping the full JSON when the option is off.',

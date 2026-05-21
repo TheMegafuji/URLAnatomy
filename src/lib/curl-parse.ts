@@ -97,9 +97,12 @@ function parseHeaderLine(line: string): { name: string; value: string } | null {
 function looksLikeUrlToken(token: string): boolean {
   if (!token) return false;
   if (token.startsWith('-')) return false;
-  if (/^https?:\/\//i.test(token)) return true;
-  // Placeholder URL or hostless path-like strings.
-  return token.includes('/') || token.includes('.');
+  const t = token.trim();
+  if (t.startsWith('{') || t.startsWith('[')) return false;
+  if (/^https?:\/\//i.test(t)) return true;
+  // Placeholder URL or hostless path-like strings (not JSON bodies).
+  if (t.includes('{') || t.includes('[')) return false;
+  return t.includes('/') || t.includes('.');
 }
 
 function normalizeUrlCandidate(token: string): string {
