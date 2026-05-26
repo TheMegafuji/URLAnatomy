@@ -6,15 +6,27 @@ export interface Base64Result {
   preview?: string;
 }
 
-const B64_REGEX = /^[A-Za-z0-9+/]+=*$/;
+const B64_REGEX = /^(?:[A-Za-z0-9+/_-]+={0,2})$/;
 const PLAIN_WORD = /^[a-zA-Z][a-zA-Z0-9_-]{0,15}$/;
 
+function normalizeBase64(value: string): string | null {
+  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+  const paddingIndex = normalized.indexOf('=');
+  if (paddingIndex !== -1 && !/^={1,2}$/.test(normalized.slice(paddingIndex))) return null;
+  const unpadded = normalized.replace(/=+$/, '');
+  const remainder = unpadded.length % 4;
+  if (remainder === 1) return null;
+  return unpadded + '='.repeat((4 - remainder) % 4);
+}
+
 function tryDecode(value: string): string | null {
+  const normalized = normalizeBase64(value);
+  if (!normalized) return null;
   try {
-    return decodeURIComponent(escape(atob(value.replace(/-/g, '+').replace(/_/g, '/'))));
+    return decodeURIComponent(escape(atob(normalized)));
   } catch {
     try {
-      return atob(value.replace(/-/g, '+').replace(/_/g, '/'));
+      return atob(normalized);
     } catch {
       return null;
     }

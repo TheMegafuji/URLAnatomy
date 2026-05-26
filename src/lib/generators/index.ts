@@ -106,7 +106,7 @@ function genUuid(meta: UuidResult | null): string {
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-7][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const JWT_REGEX = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
-const B64_REGEX = /^[A-Za-z0-9+/]+=*$/i;
+const B64_REGEX = /^[A-Za-z0-9+/_-]+={0,2}$/i;
 
 function cloneNested(v: unknown): unknown {
   if (v === null || v === undefined) return v;

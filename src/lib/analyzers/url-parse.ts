@@ -12,6 +12,41 @@ export interface ParsedUrl {
   queryParams: { key: string; value: string }[];
 }
 
+function decodeQueryComponent(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function restorePlaceholders(
+  value: string,
+  placeholderMap: { placeholder: string; original: string }[]
+): string {
+  return placeholderMap.reduce(
+    (current, { placeholder, original }) => current.split(placeholder).join(original),
+    value
+  );
+}
+
+function parseQueryParams(
+  search: string,
+  placeholderMap: { placeholder: string; original: string }[]
+): { key: string; value: string }[] {
+  const rawSearch = search.startsWith('?') ? search.slice(1) : search;
+  if (!rawSearch) return [];
+  return rawSearch.split('&').map((part) => {
+    const separatorIndex = part.indexOf('=');
+    const rawKey = separatorIndex === -1 ? part : part.slice(0, separatorIndex);
+    const rawValue = separatorIndex === -1 ? '' : part.slice(separatorIndex + 1);
+    return {
+      key: restorePlaceholders(decodeQueryComponent(rawKey), placeholderMap),
+      value: restorePlaceholders(decodeQueryComponent(rawValue), placeholderMap),
+    };
+  });
+}
+
 export function parseUrl(input: string): ParsedUrl | null {
   const raw = input.trim();
   if (!raw || isJsonLikeInput(raw)) return null;
@@ -36,8 +71,7 @@ export function parseUrl(input: string): ParsedUrl | null {
       .replace(/^\/+|\/+$/g, '')
       .split('/')
       .filter(Boolean);
-    const queryParams: { key: string; value: string }[] = [];
-    url.searchParams.forEach((value, key) => queryParams.push({ key, value }));
+    const queryParams = parseQueryParams(url.search, placeholderMap);
     return {
       raw: finalRaw,
       decoded,

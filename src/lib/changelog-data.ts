@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-05-25',
+    fixed: [
+      'Base64 detection: large replay-style query parameters now preserve literal plus signs and accept URL-safe/unpadded Base64 instead of falling back to URI.',
+    ],
+  },
+  {
     date: '2026-05-21',
     fixed: [
       'JSON vs URL detection: JSON pasted in the main input (including SQL-wrapped export blobs) is analyzed as JSON instead of being coerced into a URL; record arrays and stringified nested JSON are unwrapped for display.',
