@@ -12,11 +12,13 @@ export function DetailSheet({
   open,
   onClose,
   onUseUrlAsInput,
+  onUseJsonAsInput,
 }: {
   param: AnalyzedParam | null;
   open: boolean;
   onClose: () => void;
   onUseUrlAsInput?: (url: string) => void;
+  onUseJsonAsInput?: (json: string) => void;
 }) {
   useEffect(() => {
     if (!open) return;
@@ -61,6 +63,14 @@ export function DetailSheet({
                   onUseUrlAsInput
                     ? (url) => {
                         onUseUrlAsInput(url);
+                        onClose();
+                      }
+                    : undefined
+                }
+                onUseJsonAsInput={
+                  onUseJsonAsInput
+                    ? (json) => {
+                        onUseJsonAsInput(json);
                         onClose();
                       }
                     : undefined

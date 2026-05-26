@@ -102,13 +102,17 @@ const PARAM_VIEWS: Record<ParamKind, ViewRenderer> = {
 export function ParamDetail({
   param,
   onUseUrlAsInput,
+  onUseJsonAsInput,
 }: {
   param: AnalyzedParam;
   onUseUrlAsInput?: (url: string) => void;
+  onUseJsonAsInput?: (json: string) => void;
 }) {
   const renderView: ViewRenderer =
     param.kind === 'url'
       ? (p) => <UrlView meta={p.meta} onUseUrlAsInput={onUseUrlAsInput} />
+      : param.kind === 'base64'
+        ? (p) => <Base64View meta={p.meta} onUseJsonAsInput={onUseJsonAsInput} />
       : PARAM_VIEWS[param.kind];
 
   return (

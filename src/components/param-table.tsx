@@ -63,6 +63,7 @@ function ParamTableRow({
   onCommitEdit,
   onCancelEdit,
   onUseUrlAsInput,
+  onUseJsonAsInput,
 }: {
   param: AnalyzedParam;
   index: number;
@@ -76,6 +77,7 @@ function ParamTableRow({
   onCommitEdit: (index: number) => void;
   onCancelEdit: () => void;
   onUseUrlAsInput?: (url: string) => void;
+  onUseJsonAsInput?: (json: string) => void;
 }) {
   const isEditing = editingIndex === index;
   const isMobile = useIsMobile();
@@ -100,7 +102,11 @@ function ParamTableRow({
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
         Translation / detail
       </p>
-      <ParamDetail param={param} onUseUrlAsInput={onUseUrlAsInput} />
+      <ParamDetail
+        param={param}
+        onUseUrlAsInput={onUseUrlAsInput}
+        onUseJsonAsInput={onUseJsonAsInput}
+      />
     </div>
   );
 
@@ -216,12 +222,14 @@ export function ParamTable({
   onReplaceParam,
   onRemoveParam,
   onUseUrlAsInput,
+  onUseJsonAsInput,
 }: {
   params: AnalyzedParam[];
   emptyMessage?: string;
   onReplaceParam?: (index: number, newValue: string) => void;
   onRemoveParam?: (index: number) => void;
   onUseUrlAsInput?: (url: string) => void;
+  onUseJsonAsInput?: (json: string) => void;
 }) {
   const [sheetParam, setSheetParam] = useState<AnalyzedParam | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -283,6 +291,7 @@ export function ParamTable({
               onCommitEdit={handleCommitEdit}
               onCancelEdit={handleCancelEdit}
               onUseUrlAsInput={onUseUrlAsInput}
+              onUseJsonAsInput={onUseJsonAsInput}
             />
           ))}
         </tbody>
@@ -292,6 +301,7 @@ export function ParamTable({
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
         onUseUrlAsInput={onUseUrlAsInput}
+        onUseJsonAsInput={onUseJsonAsInput}
       />
     </>
   );

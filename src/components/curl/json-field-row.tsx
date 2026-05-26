@@ -11,6 +11,7 @@ interface JsonFieldRowProps {
   param: AnalyzedParam;
   path: string[];
   onReplaceField?: (path: string[], newValue: string) => void;
+  onUseJsonAsInput?: (json: string) => void;
   originalFieldTypes?: Map<string, AnalyzedParam['kind']>;
 }
 
@@ -18,6 +19,7 @@ export function JsonFieldRow({
   param,
   path,
   onReplaceField,
+  onUseJsonAsInput,
   originalFieldTypes = new Map(),
 }: JsonFieldRowProps) {
   const jsonMeta = param.meta as { parsed: unknown; formatted: string } | null;
@@ -154,6 +156,7 @@ export function JsonFieldRow({
                 onReplaceField([...path, ...nestedPath], newJson);
               }}
               originalFieldTypes={originalChildTypes}
+              onUseJsonAsInput={onUseJsonAsInput}
             />
           </div>
         </div>

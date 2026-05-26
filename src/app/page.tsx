@@ -209,6 +209,22 @@ export default function Home() {
     [runAnalysisAfterPaint]
   );
 
+  const onUseJsonAsInput = useCallback(
+    (json: string) => {
+      const extracted = extractJsonFromInput(json.trim());
+      const normalized = extracted?.normalized ?? json;
+      setSkipNextAnalysis(true);
+      setHasModifiedUrl(false);
+      setHasModifiedCurl(false);
+      setParsed(null);
+      setCurlMeta(null);
+      setStandaloneJson(normalized);
+      setInput(normalized);
+      runAnalysisAfterPaint(normalized);
+    },
+    [runAnalysisAfterPaint]
+  );
+
   const onReplaceHeader = useCallback(
     (index: number, newValue: string) => {
       if (!curlMeta) return;
@@ -544,6 +560,7 @@ export default function Home() {
                       params={curlHeaderParams}
                       emptyMessage="No headers"
                       onReplaceParam={onReplaceHeader}
+                      onUseJsonAsInput={onUseJsonAsInput}
                     />
                   </div>
                 </article>
@@ -554,6 +571,7 @@ export default function Home() {
                   payload={curlPayload}
                   onReplace={onReplacePayload}
                   onUseUrlAsInput={onUseUrlAsInput}
+                  onUseJsonAsInput={onUseJsonAsInput}
                 />
               )}
 
@@ -597,6 +615,7 @@ export default function Home() {
                               emptyMessage="No path segments"
                               onReplaceParam={onReplacePathSegment}
                               onUseUrlAsInput={onUseUrlAsInput}
+                              onUseJsonAsInput={onUseJsonAsInput}
                             />
                           </div>
                         </div>
@@ -618,6 +637,7 @@ export default function Home() {
                       onReplaceParam={onReplaceQueryParam}
                       onRemoveParam={onRemoveQueryParam}
                       onUseUrlAsInput={onUseUrlAsInput}
+                      onUseJsonAsInput={onUseJsonAsInput}
                     />
                   </div>
                 </article>
@@ -643,6 +663,7 @@ export default function Home() {
                 onReplace={onReplaceStandaloneJson}
                 title="JSON"
                 onUseUrlAsInput={onUseUrlAsInput}
+                onUseJsonAsInput={onUseJsonAsInput}
               />
             </motion.section>
           )}

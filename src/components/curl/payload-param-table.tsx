@@ -65,6 +65,7 @@ function ParamTableRow({
   onCancelEdit,
   originalKind,
   onUseUrlAsInput,
+  onUseJsonAsInput,
 }: {
   param: AnalyzedParam;
   index: number;
@@ -79,6 +80,7 @@ function ParamTableRow({
   onCancelEdit: () => void;
   originalKind?: ParamKind;
   onUseUrlAsInput?: (url: string) => void;
+  onUseJsonAsInput?: (json: string) => void;
 }) {
   const isEditing = editingIndex === index;
   const isMobile = useIsMobile();
@@ -104,7 +106,11 @@ function ParamTableRow({
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
         Translation / detail
       </p>
-      <ParamDetail param={param} onUseUrlAsInput={onUseUrlAsInput} />
+      <ParamDetail
+        param={param}
+        onUseUrlAsInput={onUseUrlAsInput}
+        onUseJsonAsInput={onUseJsonAsInput}
+      />
     </div>
   );
 
@@ -227,6 +233,7 @@ export function PayloadParamTable({
   onReplaceNestedField,
   originalFieldTypes,
   onUseUrlAsInput,
+  onUseJsonAsInput,
 }: {
   params: AnalyzedParam[];
   emptyMessage?: string;
@@ -235,6 +242,7 @@ export function PayloadParamTable({
   onReplaceNestedField?: (path: string[], newJson: string) => void;
   originalFieldTypes: Map<number, ParamKind>;
   onUseUrlAsInput?: (url: string) => void;
+  onUseJsonAsInput?: (json: string) => void;
 }) {
   const [sheetParam, setSheetParam] = useState<AnalyzedParam | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -292,6 +300,7 @@ export function PayloadParamTable({
                         param={param}
                         path={[param.key]}
                         onReplaceField={onReplaceNestedField}
+                        onUseJsonAsInput={onUseJsonAsInput}
                         originalFieldTypes={
                           new Map(
                             Array.from(originalFieldTypes.entries()).map(([idx, kind]) => [
@@ -322,6 +331,7 @@ export function PayloadParamTable({
                 onCancelEdit={handleCancelEdit}
                 originalKind={originalFieldTypes.get(i)}
                 onUseUrlAsInput={onUseUrlAsInput}
+                onUseJsonAsInput={onUseJsonAsInput}
               />
             );
           })}
@@ -332,6 +342,7 @@ export function PayloadParamTable({
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
         onUseUrlAsInput={onUseUrlAsInput}
+        onUseJsonAsInput={onUseJsonAsInput}
       />
     </>
   );

@@ -39,6 +39,7 @@ interface PayloadEditorProps {
   onReplace: (newPayload: string) => void;
   title?: string;
   onUseUrlAsInput?: (url: string) => void;
+  onUseJsonAsInput?: (json: string) => void;
 }
 
 export function PayloadEditor({
@@ -46,6 +47,7 @@ export function PayloadEditor({
   onReplace,
   title = 'Payload',
   onUseUrlAsInput,
+  onUseJsonAsInput,
 }: PayloadEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(payload.raw);
@@ -413,6 +415,7 @@ export function PayloadEditor({
                   onReplaceNestedField={handleReplaceNestedField}
                   originalFieldTypes={originalFieldTypes}
                   onUseUrlAsInput={onUseUrlAsInput}
+                  onUseJsonAsInput={onUseJsonAsInput}
                 />
               </div>
             </div>
