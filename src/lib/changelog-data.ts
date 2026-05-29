@@ -8,6 +8,12 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-05-29',
+    fixed: [
+      'JSON payload analysis no longer crashes with "URI malformed" when field values contain invalid percent-encoding (e.g. binary or document excerpts pasted inside JSON strings).',
+    ],
+  },
+  {
     date: '2026-05-25',
     fixed: [
       'Base64 detection: large replay-style query parameters now preserve literal plus signs and accept URL-safe/unpadded Base64 instead of falling back to URI.',

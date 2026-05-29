@@ -45,6 +45,7 @@ import { detectArn } from './arn';
 import { detectEncodingIssue } from './encoding-issue';
 import type { ParsedUrl } from './url-parse';
 import { detectUrl } from './url';
+import { safeDecodeURIComponent } from '@/lib/safe-decode-uri';
 
 export type ParamKind =
   | 'timestamp'
@@ -109,11 +110,7 @@ export interface AnalyzedParam {
 }
 
 function decodeUri(value: string): string {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
+  return safeDecodeURIComponent(value);
 }
 
 function withEncodingIssue(

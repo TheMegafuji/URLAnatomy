@@ -1,3 +1,5 @@
+import { safeDecodeURIComponent } from '@/lib/safe-decode-uri';
+
 const DB_PROTOCOL_REGEX = /^(postgres|postgresql|mysql|mysql2|mongodb|redis|amqp|s3):\/\//i;
 
 const AUTH_HOST = /^(?:([^:@]+):([^@]*)@)?([^\/:]+)(?::(\d+))?(?:\/(.*))?$/;
@@ -28,11 +30,7 @@ function parseAfterProtocol(rest: string): Omit<DbConnectionResult, 'type' | 'pr
 }
 
 function tryDecode(s: string): string {
-  try {
-    return decodeURIComponent(s);
-  } catch {
-    return s;
-  }
+  return safeDecodeURIComponent(s);
 }
 
 export function detectDbConnection(value: string): DbConnectionResult | null {

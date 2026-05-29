@@ -1,4 +1,5 @@
 import { isJsonLikeInput, isPlausibleParsedUrl } from '@/lib/json-like';
+import { safeDecodeURIComponent } from '@/lib/safe-decode-uri';
 
 export interface ParsedUrl {
   raw: string;
@@ -13,11 +14,7 @@ export interface ParsedUrl {
 }
 
 function decodeQueryComponent(value: string): string {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
+  return safeDecodeURIComponent(value);
 }
 
 function restorePlaceholders(
@@ -66,7 +63,7 @@ export function parseUrl(input: string): ParsedUrl | null {
     placeholderMap.forEach(({ placeholder, original }) => {
       finalRaw = finalRaw.replace(placeholder, original);
     });
-    const decoded = decodeURIComponent(finalRaw);
+    const decoded = safeDecodeURIComponent(finalRaw);
     const pathSegments = url.pathname
       .replace(/^\/+|\/+$/g, '')
       .split('/')
